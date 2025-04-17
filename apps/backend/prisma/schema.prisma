@@ -12,3 +12,46 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Users {
+  id       Int    @id @default(autoincrement())
+  username String
+  name     String
+  lastName String
+  password String
+}
+
+model Clients {
+  id              Int               @id @default(autoincrement())
+  name            String
+  lastName        String
+  phone           String
+  email           String
+  photo           String
+  identify        String
+  createdDate     DateTime          @default(now())
+  Payments        Payments[]
+  HistoryPayments HistoryPayments[]
+}
+
+model Payments {
+  id            Int      @id @default(autoincrement())
+  clientId      Int
+  client        Clients  @relation(fields: [clientId], references: [id])
+  methodPayment String
+  status        Boolean
+  amount        Int
+  description   String
+  datePay       DateTime @default(now())
+  nextDatePay   DateTime
+}
+
+model HistoryPayments {
+  id            Int      @id @default(autoincrement())
+  clientId      Int
+  client        Clients  @relation(fields: [clientId], references: [id])
+  methodPayment String
+  amount        Int
+  description   String
+  datePay       DateTime @default(now())
+}
