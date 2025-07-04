@@ -67,7 +67,7 @@ export const Payment = () => {
     const [payments, setPayments] = useState(mockPayments)
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("todos")
-        const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
     const filteredPayments = payments.filter((payment) => {
         const matchesSearch =
@@ -101,6 +101,10 @@ export const Payment = () => {
 
     return (
         <div className="space-y-4">
+            <div className="text-white">
+                <h1 className="text-2xl font-bold tracking-tight">Gestión de Pagos</h1>
+                <p className="text-muted-foreground">Administre los pagos de los miembros del gimnasio.</p>
+            </div>
             <div className="flex items-center justify-between">
                 <div className="flex gap-4">
                     <div className="relative w-72">

@@ -1,8 +1,9 @@
-import { Users, CreditCard, Camera, LogOut } from "lucide-react"
+import { Users, CreditCard, Camera, LogOut, Package, Bell } from "lucide-react"
 import { useLocation, Link } from "react-router"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { GrGroup } from "react-icons/gr";
 
 const navItems = [
     {
@@ -14,6 +15,21 @@ const navItems = [
         name: "Gestión de Usuarios",
         href: "/usuarios",
         icon: Users,
+    },
+    {
+        name: "Gestión de Clientes",
+        href: "/clientes",
+        icon: GrGroup,
+    },
+    {
+        name: "Gestión de Recordatorios",
+        href: "/recordatorios",
+        icon: Bell,
+    },
+    {
+        name: "Gestión de Planes",
+        href: "/planes",
+        icon: Package,
     },
     {
         name: "Gestión de Pagos",

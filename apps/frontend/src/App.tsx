@@ -5,6 +5,9 @@ import { Users } from './pages/users/Users'
 import { Payment } from './pages/payment/Payment'
 import { Access } from './pages/access/Access'
 import { Layout } from './layout/Layout'
+import { Clients } from './pages/clients/Clients'
+import { Notification } from './pages/notification/Notification'
+import { Plan } from './pages/plan/Plan'
 
 function App() {
 
@@ -18,6 +21,9 @@ function App() {
             <Route path="/usuarios" element={<Users />} />
             <Route path="/pagos" element={<Payment />} />
             <Route path="/acceso" element={<Access />} />
+            <Route path="/clientes" element={<Clients />} />
+            <Route path="/planes" element={<Plan />} />
+            <Route path="/recordatorios" element={<Notification />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -4,6 +4,8 @@ import { IsBoolean, IsDate, IsNumber, IsString } from "class-validator";
 export class PaymentDTO {
     @IsNumber()
     clientId: number;
+    @IsNumber()
+    userId: number;
     @IsString()
     methodPayment: string;
     @IsBoolean()

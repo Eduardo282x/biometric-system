@@ -12,7 +12,7 @@ export class AuthService {
 
     async authLogin(login: LoginDTO) {
         try {
-            const findUser = await this.prismaService.users.findFirst({
+            const findUser = await this.prismaService.user.findFirst({
                 where: {
                     username: login.username,
                     password: login.password

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDTO } from './clients.dto';
+import { Client } from '@prisma/client';
 
 @Injectable()
 export class ClientsService {
@@ -11,19 +12,28 @@ export class ClientsService {
     }
 
     async getClients() {
-        return await this.prismaService.clients.findMany();
+        return await this.prismaService.client.findMany();
+    }
+
+    async findClientByName(clientName: string): Promise<Client> {
+        return await this.prismaService.client.findFirst({
+            where: {
+                name: clientName
+            }
+        });
     }
 
     async registerClients(client: ClientDTO) {
         try {
-            await this.prismaService.clients.create({
+            await this.prismaService.client.create({
                 data: {
                     name: client.name,
                     lastName: client.lastName,
                     phone: client.phone,
-                    photo: client.photo,
+                    photo: '',
                     email: client.email,
                     identify: client.identify,
+                    address: client.address
                 }
             })
 
@@ -37,12 +47,11 @@ export class ClientsService {
 
     async updateClients(id: number, client: ClientDTO) {
         try {
-            await this.prismaService.clients.update({
+            await this.prismaService.client.update({
                 data: {
                     name: client.name,
                     lastName: client.lastName,
                     phone: client.phone,
-                    photo: client.photo,
                     email: client.email,
                     identify: client.identify,
                 },
@@ -59,7 +68,7 @@ export class ClientsService {
 
     async deleteClients(id: number) {
         try {
-            await this.prismaService.clients.delete({
+            await this.prismaService.client.delete({
                 where: { id }
             })
 

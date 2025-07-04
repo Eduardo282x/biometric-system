@@ -1,7 +1,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { Plus, Search } from "lucide-react"
+import { Download, Plus, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,35 +17,50 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { TableComponent } from "@/components/table/TableComponent"
-import { usersColumns, type IUser } from "./user.data"
+import { clientsColumns, IClient } from "./client.data"
 
 // Mock user data
-const mockUsers: IUser[] = [
+const mockClients = [
     {
         id: 1,
-        name: "Alvaro",
-        lastName: "Rios",
-        username: 'Alvaro20',
-        rol: 'Administrador'
+        name: "Carlos",
+        lastName: "Rodríguez",
+        cedula: "V-12345678",
+        address: "Av. Principal, Caracas",
+        phone: "+58 412-1234567",
+        email: "carlos@example.com",
     },
     {
         id: 2,
-        name: "Luis",
-        lastName: "Perez",
-        username: 'LuisP',
-        rol: 'Recepcionista'
+        name: "María",
+        lastName: "González",
+        cedula: "V-87654321",
+        address: "Calle 5, Valencia",
+        phone: "+58 414-7654321",
+        email: "maria@example.com",
     },
     {
         id: 3,
-        name: "Maria",
-        lastName: "Villalobos",
-        username: 'MariaV',
-        rol: 'Recepcionista'
-    }
+        name: "Juan",
+        lastName: "Pérez",
+        cedula: "V-23456789",
+        address: "Urbanización Los Palos Grandes",
+        phone: "+58 416-2345678",
+        email: "juan@example.com",
+    },
+    {
+        id: 4,
+        name: "Ana",
+        lastName: "Martínez",
+        cedula: "V-98765432",
+        address: "Centro Comercial Sambil",
+        phone: "+58 424-9876543",
+        email: "ana@example.com",
+    },
 ]
 
-export const Users = () => {
-    const [users, setUsers] = useState<IUser[]>(mockUsers)
+export const Clients = () => {
+    const [users, setUsers] = useState<IClient[]>(mockClients)
     const [searchTerm, setSearchTerm] = useState("")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -61,21 +76,21 @@ export const Users = () => {
         setSearchTerm(e.target.value)
     }
 
-    // const handleExportToExcel = () => {
-    //     // Mock export functionality
-    //     console.log("Exporting to Excel:", users)
-    //     alert("Exportando a Excel...")
-    // }
+    const handleExportToExcel = () => {
+        // Mock export functionality
+        console.log("Exporting to Excel:", users)
+        alert("Exportando a Excel...")
+    }
 
     useEffect(() => {
-        setUsers(mockUsers)
+        setUsers(mockClients)
     }, [])
 
     return (
         <div className="space-y-4 text-white">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight">Gestión de Usuarios</h1>
-                <p className="text-muted-foreground">Administre los usuarios del gimnasio.</p>
+                <h1 className="text-2xl font-bold tracking-tight">Gestión de Clientes</h1>
+                <p className="text-muted-foreground">Administre los clientes del gimnasio.</p>
             </div>
             <div className="flex items-center justify-between">
                 <div className="relative w-72">
@@ -136,16 +151,16 @@ export const Users = () => {
                         </DialogContent>
                     </Dialog>
 
-                    {/* <Button variant="outline" onClick={handleExportToExcel}>
+                    <Button className="text-black" variant="outline" onClick={handleExportToExcel}>
                         <Download className="mr-2 h-4 w-4" />
                         Exportar a Excel
-                    </Button> */}
+                    </Button>
                 </div>
             </div>
 
             <TableComponent
                 data={filteredUsers}
-                columns={usersColumns}
+                columns={clientsColumns}
             />
 
             {/* Edit User Dialog */}
@@ -169,4 +184,5 @@ export const Users = () => {
         </div>
     )
 }
+
 

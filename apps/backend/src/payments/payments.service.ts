@@ -12,16 +12,16 @@ export class PaymentsService {
     }
 
     async getPayment() {
-        return await this.prismaService.payments.findMany();
+        return await this.prismaService.payment.findMany();
     }
 
     async registerPayment(payment: PaymentDTO) {
         try {
-            await this.prismaService.payments.create({
+            await this.prismaService.payment.create({
                 data: {
                     clientId: payment.clientId,
+                    userId: payment.userId,
                     methodPayment: payment.methodPayment,
-                    status: payment.status,
                     amount: payment.amount,
                     description: payment.description,
                     nextDatePay: payment.nextDatePay,
@@ -38,11 +38,11 @@ export class PaymentsService {
 
     async updatePayment(id: number, payment: PaymentDTO) {
         try {
-            await this.prismaService.payments.update({
+            await this.prismaService.payment.update({
                 data: {
                     clientId: payment.clientId,
+                    userId: payment.userId,
                     methodPayment: payment.methodPayment,
-                    status: payment.status,
                     amount: payment.amount,
                     description: payment.description,
                     nextDatePay: payment.nextDatePay,
@@ -60,7 +60,7 @@ export class PaymentsService {
 
     async deletePayment(id: number) {
         try {
-            await this.prismaService.payments.delete({
+            await this.prismaService.payment.delete({
                 where: { id }
             })
 

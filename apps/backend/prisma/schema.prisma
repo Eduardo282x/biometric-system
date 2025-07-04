@@ -13,43 +13,80 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
+model User {
   id       Int    @id @default(autoincrement())
-  username String
+  username String @unique
   name     String
   lastName String
   password String
+  role     Role   @default(RECEPCIONISTA)
+
+  payments Payment[] // pagos que este usuario ha registrado
 }
 
-model Clients {
-  id              Int               @id @default(autoincrement())
-  name            String
-  lastName        String
-  phone           String
-  email           String
-  photo           String
-  identify        String
-  createdDate     DateTime          @default(now())
-  Payments        Payments[]
-  HistoryPayments HistoryPayments[]
+enum Role {
+  GERENTE
+  RECEPCIONISTA
 }
 
-model Payments {
+model Client {
+  id          Int      @id @default(autoincrement())
+  name        String
+  lastName    String
+  identify    String   @unique
+  email       String
+  phone       String
+  address     String
+  photo       String? // opcional
+  createdDate DateTime @default(now())
+
+  planId Int?
+  plan   Plan? @relation(fields: [planId], references: [id])
+
+  payments        Payment[]
+  advancePayments AdvancePayment[]
+  historyPayments HistoryPayment[]
+}
+
+model Plan {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Int
+  description String
+  clients     Client[]
+}
+
+model Payment {
   id            Int      @id @default(autoincrement())
   clientId      Int
-  client        Clients  @relation(fields: [clientId], references: [id])
+  client        Client   @relation(fields: [clientId], references: [id])
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
   methodPayment String
-  status        Boolean
   amount        Int
   description   String
   datePay       DateTime @default(now())
   nextDatePay   DateTime
+
+  // ayuda a saber si este pago es un abono de un plan mensual
+  fromAdvancePaymentId Int?
+  fromAdvancePayment   AdvancePayment? @relation(fields: [fromAdvancePaymentId], references: [id])
 }
 
-model HistoryPayments {
+model AdvancePayment {
+  id        Int       @id @default(autoincrement())
+  clientId  Int
+  client    Client    @relation(fields: [clientId], references: [id])
+  total     Int
+  remaining Int // lo que aún queda por usar
+  createdAt DateTime  @default(now())
+  payments  Payment[] // pagos mensuales cubiertos con este adelanto
+}
+
+model HistoryPayment {
   id            Int      @id @default(autoincrement())
   clientId      Int
-  client        Clients  @relation(fields: [clientId], references: [id])
+  client        Client   @relation(fields: [clientId], references: [id])
   methodPayment String
   amount        Int
   description   String

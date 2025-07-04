@@ -9,7 +9,7 @@ export class ClientDTO {
     @IsPhoneNumber('VE')
     phone: string;
     @IsString()
-    photo: string;
+    address: string;
     @IsString()
     @IsEmail()
     email: string;
