@@ -3,7 +3,17 @@ import { CheckCircle, XCircle } from "lucide-react"
 import Webcam from "react-webcam";
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 // Mock user data
 const mockUser = {
@@ -23,9 +33,14 @@ const videoConstraints = {
 export const Access = () => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const [stream, setStream] = useState<MediaStream | null>(null)
-    const [isScanning, setIsScanning] = useState(false)
+    const [isScanning, setIsScanning] = useState<boolean>(false);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [userDetected, setUserDetected] = useState<boolean>(false)
-    const [userData, setUserData] = useState<typeof mockUser | null>(mockUser)
+    const [userData, setUserData] = useState<typeof mockUser | null>(mockUser);
+
+    const openSearch = () => {
+        setOpenDialog(true)
+    }
 
     const startCamera = async () => {
         try {
@@ -120,6 +135,10 @@ export const Access = () => {
                                 Detener Cámara
                             </Button>
                         )}
+
+                        <Button onClick={openSearch} variant='outline'>
+                            Buscar por cédula
+                        </Button>
                     </CardFooter>
                 </Card>
 
@@ -174,7 +193,50 @@ export const Access = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            <SearchByIdentification
+                open={openDialog}
+                setOpen={setOpenDialog}
+                onSearch={() => console.log('Buscando...')}
+            />
         </div>
+    )
+}
+
+interface SearchByIdentificationProps {
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    onSearch: () => void;
+}
+
+const SearchByIdentification = ({ open, setOpen, onSearch }: SearchByIdentificationProps) => {
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="sm:max-w-[425px] bg-zinc-900 border-zinc-800">
+                <DialogHeader>
+                    <DialogTitle>Buscar Cliente</DialogTitle>
+                    <DialogDescription>Ingrese la cédula del cliente para verificar su acceso.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="cedula-search">Cédula</Label>
+                        <Input
+                            id="cedula-search"
+                            placeholder="V-12345678"
+                            className="bg-zinc-950 border-zinc-800"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setOpen(false)}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={onSearch} className="bg-blue-600 hover:bg-blue-700">
+                        Buscar
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }
 

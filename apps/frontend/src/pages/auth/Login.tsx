@@ -1,5 +1,3 @@
-import type React from "react"
-
 import { useState } from "react"
 import { LogIn } from "lucide-react"
 
@@ -8,20 +6,34 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useNavigate } from "react-router"
+import { useForm } from 'react-hook-form';
+import { ILogin } from "@/services/auth/auth.interface"
+import { authLogin } from "@/services/auth/auth.service"
+import { BaseResponse } from "@/services/api"
+
 
 export const Login = () => {
     const navigate = useNavigate()
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const { register, handleSubmit } = useForm<ILogin>({
+        defaultValues: {
+            username: '',
+            password: ''
+        }
+    })
+
+    const onSubmit = async (data: ILogin) => {
         setIsLoading(true)
 
-        // Simulate authentication
-        setTimeout(() => {
-            setIsLoading(false)
-            navigate("/acceso")
-        }, 1000)
+        const response: BaseResponse = await authLogin(data);
+
+        if (response.success) {
+            setTimeout(() => {
+                navigate("/acceso");
+            }, 1500);
+        }
+        setIsLoading(false)
     }
 
     return (
@@ -31,14 +43,14 @@ export const Login = () => {
                     <CardTitle className="text-2xl text-center text-white font-bold">GYM ACCESS</CardTitle>
                     <CardDescription className="text-gray-300 text-center">Ingresa tus credenciales para acceder al sistema</CardDescription>
                 </CardHeader>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label className="text-white" htmlFor="username">Nombre de usuario</Label>
                             <Input
                                 id="username"
                                 placeholder="usuario"
-                                required
+                                {...register('username')}
                                 className=" text-white bg-zinc-950 border-zinc-800 focus-visible:ring-blue-500"
                             />
                         </div>
@@ -48,7 +60,7 @@ export const Login = () => {
                                 id="password"
                                 type="password"
                                 placeholder="••••••••"
-                                required
+                                {...register('password')}
                                 className=" text-white bg-zinc-950 border-zinc-800 focus-visible:ring-blue-500"
                             />
                         </div>

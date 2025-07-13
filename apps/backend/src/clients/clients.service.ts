@@ -12,7 +12,9 @@ export class ClientsService {
     }
 
     async getClients() {
-        return await this.prismaService.client.findMany();
+        return await this.prismaService.client.findMany({
+            include: { plan: true }
+        });
     }
 
     async findClientByName(clientName: string): Promise<Client> {

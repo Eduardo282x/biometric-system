@@ -1,53 +1,44 @@
 import { IColumns } from "@/components/table/TableComponent";
 import { Pencil, Trash2 } from "lucide-react";
+import { IClients } from "@/services/client/client.interface";
 
-export interface IClient {
-    id: number;
-    name: string;
-    lastName: string;
-    cedula: string;
-    address: string;
-    phone: string;
-    email: string;
-}
-
-export const clientsColumns: IColumns[] = [
+export const clientsColumns: IColumns<IClients>[] = [
     {
         label: 'Nombre',
         column: 'name',
-        element: (data: IClient) => data.name
+        element: (data: IClients) => data.name
     },
     {
         label: 'Apellido',
         column: 'lastName',
-        element: (data: IClient) => data.lastName
+        element: (data: IClients) => data.lastName
     },
     {
         label: 'Cédula',
-        column: 'cedula',
-        element: (data: IClient) => data.cedula
+        column: 'identify',
+        element: (data: IClients) => data.identify
     },
     {
         label: 'Dirección',
         column: 'address',
-        element: (data: IClient) => data.address
+        element: (data: IClients) => data.address
     },
     {
         label: 'Teléfono',
         column: 'phone',
-        element: (data: IClient) => data.phone
+        element: (data: IClients) => data.phone
     },
     {
         label: 'Correo',
         column: 'email',
-        element: (data: IClient) => data.email
+        element: (data: IClients) => data.email
     },
     {
         label: 'Editar',
         column: 'edit',
         element: () => '',
         icon: true,
-        className: 'text-blue-800',
+        className: () => 'text-blue-800',
         Icon: Pencil
     },
     {
@@ -55,7 +46,7 @@ export const clientsColumns: IColumns[] = [
         column: 'delete',
         element: () => '',
         icon: true,
-        className: 'text-red-700',
+        className: () => 'text-red-700',
         Icon: Trash2
     }
 ]

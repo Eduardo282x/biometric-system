@@ -1,15 +1,8 @@
 import { IColumns } from "@/components/table/TableComponent";
+import { IUser, Role } from "@/services/user/user.interface";
 import { Pencil, Trash2 } from "lucide-react";
 
-export interface IUser {
-    id: number,
-    name: string;
-    lastName: string;
-    username: string;
-    rol: string;
-}
-
-export const usersColumns: IColumns[] = [
+export const usersColumns: IColumns<IUser>[] = [
     {
         label: 'Nombre',
         column: 'name',
@@ -27,15 +20,16 @@ export const usersColumns: IColumns[] = [
     },
     {
         label: 'Rol',
-        column: 'rol',
-        element: (data: IUser) => data.rol
+        column: 'role',
+        element: (data: IUser) => setRoleName(data.role),
+        className: () => 'capitalize'
     },
     {
         label: 'Editar',
         column: 'edit',
         element: () => '',
         icon: true,
-        className: 'text-blue-800',
+        className: () => 'text-blue-800',
         Icon: Pencil
     },
     {
@@ -43,12 +37,20 @@ export const usersColumns: IColumns[] = [
         column: 'delete',
         element: () => '',
         icon: true,
-        className: 'text-red-700',
+        className: () => 'text-red-700',
         Icon: Trash2
     }
 ]
 
-// <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
-//                                             <Pencil className="h-4 w-4" />
-//                                             <span className="sr-only">Editar</span>
-//                                         </Button>
+export const setRoleName = (role: Role): string => {
+    switch (role) {
+        case 'ADMIN':
+            return 'Administrador';
+        case 'GERENTE':
+            return 'Gerente';
+        case 'RECEPCIONISTA':
+            return 'Recepcionista'
+        default:
+            return '';
+    }
+}

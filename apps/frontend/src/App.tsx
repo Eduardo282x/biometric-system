@@ -8,11 +8,14 @@ import { Layout } from './layout/Layout'
 import { Clients } from './pages/clients/Clients'
 import { Notification } from './pages/notification/Notification'
 import { Plan } from './pages/plan/Plan'
+import { useAxiosInterceptor } from './services/Interceptor'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
-
+  useAxiosInterceptor();
   return (
     <div >
+      <Toaster />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
