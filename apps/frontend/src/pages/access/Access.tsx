@@ -14,14 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
-// Mock user data
-const mockUser = {
-    name: "Alvaro",
-    lastName: "Rios",
-    accessStatus: true,
-    nextPaymentDate: "04/08/2025",
-}
+import { findClient } from "@/services/client/client.service";
+import { ClientIdentification, IClients } from "@/services/client/client.interface";
 
 const videoConstraints = {
     width: 1280,
@@ -35,17 +29,29 @@ export const Access = () => {
     const [stream, setStream] = useState<MediaStream | null>(null)
     const [isScanning, setIsScanning] = useState<boolean>(false);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [userDetected, setUserDetected] = useState<boolean>(false)
-    const [userData, setUserData] = useState<typeof mockUser | null>(mockUser);
+    const [isDetected, setIsDetected] = useState<boolean>(false)
+    const [clientDetected, setClientDetected] = useState<IClients | null>(null);
 
     const openSearch = () => {
         setOpenDialog(true)
     }
 
+    const findClientByIdentification = async (data: ClientIdentification) => {
+        const response = await findClient(data);
+        if (response.success) {
+            setIsDetected(true);
+            setClientDetected(response.data as IClients)
+            setOpenDialog(false)
+        } else {
+            setIsDetected(false);
+        }
+
+    }
+
     const startCamera = async () => {
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
-            console.log(mediaStream);
+            // console.log(mediaStream);
 
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream
@@ -55,8 +61,8 @@ export const Access = () => {
 
             // Simulate face detection after 3 seconds
             setTimeout(() => {
-                setUserDetected(true)
-                setUserData(mockUser)
+                setIsDetected(true)
+                // setUserData(mockUser)
             }, 3000)
         } catch (err) {
             console.error("Error accessing camera:", err)
@@ -68,8 +74,8 @@ export const Access = () => {
             stream.getTracks().forEach((track) => track.stop())
             setStream(null)
             setIsScanning(false)
-            setUserDetected(false)
-            setUserData(null)
+            setIsDetected(false)
+            setClientDetected(null)
         }
     }
 
@@ -146,7 +152,7 @@ export const Access = () => {
                     <CardHeader>
                         <CardTitle className="text-white text-4xl">Información del Cliente</CardTitle>
                         <CardDescription className="text-xl text-gray-300">
-                            {userDetected
+                            {isDetected
                                 ? "Cliente identificado"
                                 : isScanning
                                     ? "Buscando coincidencia..."
@@ -154,18 +160,18 @@ export const Access = () => {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6 text-white">
-                        {userData ? (
+                        {clientDetected && isDetected ? (
                             <>
                                 <div className="space-y-1">
                                     <p className="text-sm text-zinc-500">Nombre completo</p>
                                     <p className="text-lg font-medium">
-                                        {userData.name} {userData.lastName}
+                                        {clientDetected.name} {clientDetected.lastName}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-sm text-zinc-500">Estado de acceso</p>
                                     <div className="flex items-center gap-2">
-                                        {userData.accessStatus ? (
+                                        {clientDetected.accessStatus ? (
                                             <>
                                                 <CheckCircle className="h-5 w-5 text-green-500" />
                                                 <p className="text-lg font-medium text-green-500">Acceso permitido</p>
@@ -181,7 +187,7 @@ export const Access = () => {
                                 <div className="space-y-1">
                                     <p className="text-sm text-zinc-500">Próximo pago</p>
                                     <div className="flex items-center gap-2 text-lg font-medium">
-                                        <p>{userData.nextPaymentDate}</p> - <p>29 Dias</p>
+                                        <p>{clientDetected.nextPaymentDate}</p> - <p>29 Dias</p>
                                     </div>
                                 </div>
                             </>
@@ -197,7 +203,7 @@ export const Access = () => {
             <SearchByIdentification
                 open={openDialog}
                 setOpen={setOpenDialog}
-                onSearch={() => console.log('Buscando...')}
+                onSearch={findClientByIdentification}
             />
         </div>
     )
@@ -206,32 +212,41 @@ export const Access = () => {
 interface SearchByIdentificationProps {
     open: boolean;
     setOpen: (open: boolean) => void;
-    onSearch: () => void;
+    onSearch: (data: ClientIdentification) => void;
 }
 
 const SearchByIdentification = ({ open, setOpen, onSearch }: SearchByIdentificationProps) => {
+    const [identification, setIdentification] = useState<string>('');
+
+    const onSubmit = () => {
+        onSearch({ identify: identification })
+    }
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[425px] bg-zinc-900 border-zinc-800">
+            <DialogContent className="text-white sm:max-w-[425px] bg-zinc-900 border-zinc-800">
                 <DialogHeader>
                     <DialogTitle>Buscar Cliente</DialogTitle>
                     <DialogDescription>Ingrese la cédula del cliente para verificar su acceso.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="space-y-2">
-                        <Label htmlFor="cedula-search">Cédula</Label>
+                        <Label htmlFor="identification-search">Cédula</Label>
                         <Input
-                            id="cedula-search"
+                            id="identification-search"
                             placeholder="V-12345678"
+                            value={identification}
+                            onKeyDownCapture={(value) => { if (value.key == 'Enter') onSubmit() }}
+                            onChange={(e) => setIdentification(e.target.value)}
                             className="bg-zinc-950 border-zinc-800"
                         />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>
+                    <Button className="text-black" variant="outline" onClick={() => setOpen(false)}>
                         Cancelar
                     </Button>
-                    <Button onClick={onSearch} className="bg-blue-600 hover:bg-blue-700">
+                    <Button type="submit" onClick={onSubmit} className="bg-blue-600 hover:bg-blue-700">
                         Buscar
                     </Button>
                 </DialogFooter>

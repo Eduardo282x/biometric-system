@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientDTO } from './clients.dto';
+import { ClientDTO, ClientIdentificationDTO } from './clients.dto';
 import { Client } from '@prisma/client';
 
 @Injectable()
@@ -15,6 +15,20 @@ export class ClientsService {
         return await this.prismaService.client.findMany({
             include: { plan: true }
         });
+    }
+    async findClientByIdentification(client: ClientIdentificationDTO) {
+        const findClient = await this.prismaService.client.findFirst({
+            where: { identify: client.identify },
+            include: { plan: true }
+        });
+
+        if (findClient) {
+            baseResponse.data = findClient;
+            baseResponse.message = 'Cliente encontrado.'
+            return baseResponse;
+        }
+        badResponse.message = 'Cliente no encontrado.'
+        return badResponse;
     }
 
     async findClientByName(clientName: string): Promise<Client> {

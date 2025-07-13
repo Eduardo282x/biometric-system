@@ -1,6 +1,7 @@
 export class BaseResponse {
     message: string;
     success: boolean;
+    data?: any;
 }
 
 export class BaseResponseLogin extends BaseResponse {
@@ -10,6 +11,7 @@ export class BaseResponseLogin extends BaseResponse {
 export const baseResponse: BaseResponse = {
     message: '',
     success: true,
+    data: null
 }
 
 export const badResponse: BaseResponse = {

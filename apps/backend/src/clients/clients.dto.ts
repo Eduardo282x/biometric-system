@@ -16,3 +16,7 @@ export class ClientDTO {
     @IsString()
     identify: string;
 }
+export class ClientIdentificationDTO {
+    @IsString()
+    identify: string;
+}

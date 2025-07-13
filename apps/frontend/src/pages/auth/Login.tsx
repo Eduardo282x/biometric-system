@@ -24,7 +24,7 @@ export const Login = () => {
     })
 
     const onSubmit = async (data: ILogin) => {
-        setIsLoading(true)
+    setIsLoading(true)
 
         const response: BaseResponse = await authLogin(data);
 

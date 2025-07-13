@@ -7,28 +7,35 @@ export interface ClientBody {
     identify: string;
 }
 
-export interface GroupClients { 
+export interface ClientIdentification {
+    identify: string;
+}
+
+export interface GroupClients {
     allClients: IClients[];
     clients: IClients[]
 }
 
 export interface IClients {
-    id:          number;
-    name:        string;
-    lastName:    string;
-    identify:    string;
-    email:       string;
-    phone:       string;
-    address:     string;
-    photo:       string;
+    id: number;
+    name: string;
+    lastName: string;
+    identify: string;
+    email: string;
+    phone: string;
+    address: string;
+    photo: string;
     createdDate: Date;
-    planId:      number;
-    plan:        Plan;
+    planId: number;
+    plan: Plan;
+
+    accessStatus: boolean;
+    nextPaymentDate: string;
 }
 
 export interface Plan {
-    id:          number;
-    name:        string;
-    price:       number;
+    id: number;
+    name: string;
+    price: number;
     description: string;
 }
