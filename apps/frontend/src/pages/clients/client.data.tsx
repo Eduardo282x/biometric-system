@@ -1,8 +1,15 @@
 import { IColumns } from "@/components/table/TableComponent";
 import { Pencil, Trash2 } from "lucide-react";
 import { IClients } from "@/services/client/client.interface";
+import { FaRegUser } from "react-icons/fa";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const clientsColumns: IColumns<IClients>[] = [
+    {
+        label: 'Imagen',
+        column: 'photo',
+        element: (data: IClients) => data.photo !== '' ? <RenderImage imageUrl={data.photo} /> : <div className="flex items-center justify-center w-10 mx-auto border rounded-full h-10 overflow-hidden"><FaRegUser size={20} /></div>
+    },
     {
         label: 'Nombre',
         column: 'name',
@@ -49,4 +56,13 @@ export const clientsColumns: IColumns<IClients>[] = [
         className: () => 'text-red-700',
         Icon: Trash2
     }
-]
+];
+
+export const RenderImage = ({ imageUrl }: { imageUrl: string }) => {
+    const getImage = `http://localhost:3000/public/faces/${imageUrl}`
+    return (
+        <div className="w-full flex items-center justify-center">
+            <img className="w-10 h-10 rounded-full object-cover" src={getImage} />
+        </div>
+    )
+}

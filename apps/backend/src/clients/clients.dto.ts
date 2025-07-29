@@ -1,4 +1,4 @@
-import { IsEmail, IsPhoneNumber, IsString } from "class-validator";
+import { IsEmail, IsEmpty, IsPhoneNumber, IsString } from "class-validator";
 
 export class ClientDTO {
     @IsString()
@@ -6,7 +6,7 @@ export class ClientDTO {
     @IsString()
     lastName: string;
     @IsString()
-    @IsPhoneNumber('VE')
+    @IsPhoneNumber('VE', { message: 'Numero de telefono invalido.' })
     phone: string;
     @IsString()
     address: string;

@@ -39,14 +39,41 @@ export class ClientsService {
         });
     }
 
-    async registerClients(client: ClientDTO) {
+    async registerClients(client: ClientDTO, photo: string | null) {
+        console.log(photo);
+        
         try {
+            const findDuplicate = await this.prismaService.client.findFirst({
+                where: {
+                    OR: [
+                        { identify: client.identify },
+                        { phone: client.phone },
+                        { email: client.email }
+                    ]
+                }
+            });
+
+            if (findDuplicate) {
+                let duplicateField = '';
+
+                if (findDuplicate.identify === client.identify) {
+                    duplicateField = 'la cédula';
+                } else if (findDuplicate.phone === client.phone) {
+                    duplicateField = 'el teléfono';
+                } else if (findDuplicate.email === client.email) {
+                    duplicateField = 'el correo electrónico';
+                }
+
+                badResponse.message = `Este ${duplicateField} ya está registrado.`;
+                return badResponse;
+            }
+
             await this.prismaService.client.create({
                 data: {
                     name: client.name,
                     lastName: client.lastName,
                     phone: client.phone,
-                    photo: '',
+                    photo: photo || '',
                     email: client.email,
                     identify: client.identify,
                     address: client.address

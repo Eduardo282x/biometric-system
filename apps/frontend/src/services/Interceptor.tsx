@@ -29,14 +29,10 @@ export const useAxiosInterceptor = () => {
                 if (['post', 'put', 'delete'].includes(error.config?.method || '')) {
                     const message = error.response?.data;
                     const parseMessage = message.message.length > 0 ? message.message[0] : message.message
-                    console.log(parseMessage);
-
-                    if (isValidMessage(message?.message)) {
-                        toast.custom(<Snackbar success={message.success} message={parseMessage} />, {
-                            duration: 1500,
-                            position: 'bottom-center'
-                        });
-                    }
+                    toast.custom(<Snackbar success={false} message={parseMessage} />, {
+                        duration: 1500,
+                        position: 'bottom-center'
+                    });
                 }
                 return Promise.reject(error);
             }

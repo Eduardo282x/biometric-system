@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableComponent } from "@/components/table/TableComponent";
-import { clientsColumns } from "./client.data";
-import { createClient, getClients, updateClient } from "@/services/client/client.service";
+import { getClients, uploadPhotoClient } from "@/services/client/client.service";
 import { ClientBody, GroupClients, IClients } from "@/services/client/client.interface";
 import { FilterComponent } from "@/components/table/FilterComponent";
 import { ClientsForm } from "./ClientsForm";
+import { clientsColumns } from "./client.data";
 
 export const Clients = () => {
     const [clients, setClients] = useState<GroupClients>({ allClients: [], clients: [] })
@@ -26,7 +26,9 @@ export const Clients = () => {
     const getClientsApi = async () => {
         try {
             const response = await getClients();
-            setClients({ allClients: response, clients: response })
+            if (response) {
+                setClients({ allClients: response, clients: response })
+            }
         } catch (err) {
             console.log(err);
         }
@@ -51,12 +53,22 @@ export const Clients = () => {
         setOpen(true);
     }
 
-    const getActionForm = async (data: ClientBody) => {
-        if (clientSelected) {
-            await updateClient(clientSelected.id, data);
-        } else {
-            await createClient(data);
+    // const getPicture = async (picture: File, client: ClientBody) => {
+    //     const formData = new FormData();
+    //     formData.append('image', picture);
+    //     formData.append('data', client.identify);
+    //     await uploadPhotoClient(formData);
+    // }
+
+    const getActionForm = async (picture: File | null, data: ClientBody) => {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(data));
+
+        if (picture) {
+            formData.append('image', picture);
         }
+
+        await uploadPhotoClient(formData); // única función para manejar ambos casos
         setOpen(false);
         await getClientsApi();
     }
@@ -101,7 +113,8 @@ export const Clients = () => {
                     data={clientSelected}
                     open={open}
                     setOpen={setOpen}
-                    onSubmit={getActionForm}
+                    onSubmit={() =>console.log('nada')}
+                    onSubmitPicture={getActionForm}
                 />
             )}
         </div>

@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import './App.css'
 import { Login } from './pages/auth/Login'
 import { Users } from './pages/users/Users'
@@ -28,6 +28,8 @@ function App() {
             <Route path="/planes" element={<Plan />} />
             <Route path="/recordatorios" element={<Notification />} />
           </Route>
+
+          <Route path="*" element={<Navigate to='/login' />} />
         </Routes>
       </BrowserRouter>
     </div>

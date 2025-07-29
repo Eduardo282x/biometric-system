@@ -5,7 +5,6 @@ import json
 
 # Ruta de las imágenes de referencia
 FACES_DIR = './faces'
-TEST_IMAGE_PATH = './temp/verificacion.jpg'
 
 def load_known_faces():
     known_encodings = []
@@ -22,13 +21,18 @@ def load_known_faces():
 
     return known_encodings, known_names
 
-def recognize_face():
+def recognize_face(image_path):
     known_encodings, known_names = load_known_faces()
-    unknown_image = face_recognition.load_image_file(TEST_IMAGE_PATH)
+    
+    try:
+        unknown_image = face_recognition.load_image_file(image_path)
+    except Exception as e:
+        return json.dumps({"match": False, "name": None, "error": f"Error al cargar imagen: {str(e)}"})
+
     unknown_encodings = face_recognition.face_encodings(unknown_image)
 
     if not unknown_encodings:
-        return json.dumps({"match": False, "name": None})
+        return json.dumps({"match": False, "name": None, "error": "No se detectó ningún rostro en la imagen"})
 
     for known_encoding, name in zip(known_encodings, known_names):
         match = face_recognition.compare_faces([known_encoding], unknown_encodings[0])[0]
@@ -38,4 +42,8 @@ def recognize_face():
     return json.dumps({"match": False, "name": None})
 
 if __name__ == "__main__":
-    print(recognize_face())
+    if len(sys.argv) < 2:
+        print(json.dumps({"match": False, "name": None, "error": "No se proporcionó ruta de imagen"}))
+    else:
+        image_path = sys.argv[1]
+        print(recognize_face(image_path))

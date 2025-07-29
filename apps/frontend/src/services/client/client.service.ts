@@ -25,13 +25,21 @@ export const createClient = async (data: ClientBody) => {
         return err;
     }
 }
-export const uploadPhotoClient = async (data: FormData) => {
+export const verifyClientFace = async (data: FormData) => {
     try {
-        return await postFilesDataApi(clientURL, data);
+        return await postFilesDataApi(`${clientURL}/verify-face`, data);
     } catch (err) {
         return err;
     }
 }
+export const uploadPhotoClient = async (data: FormData) => {
+    try {
+        return await postFilesDataApi(`${clientURL}/register`, data);
+    } catch (err) {
+        return err;
+    }
+}
+
 export const updateClient = async (id: number, data: ClientBody) => {
     try {
         return await putDataApi(`${clientURL}/${id}`, data);

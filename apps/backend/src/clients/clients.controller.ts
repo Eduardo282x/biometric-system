@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { ClientDTO, ClientIdentificationDTO } from './clients.dto';
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FaceService } from './face.service';
-import path from 'path';
+import * as path from 'path';
 
 @Controller('clients')
 export class ClientsController {
@@ -20,48 +20,52 @@ export class ClientsController {
     async getClients() {
         return await this.clientService.getClients();
     }
-    @Post()
-    async registerClients(@Body() client: ClientDTO) {
-        return await this.clientService.registerClients(client);
-    }
+    // @Post()
+    // async registerClients(@Body() client: ClientDTO) {
+    //     return await this.clientService.registerClients(client);
+    // }
 
     @Post('/register')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './faces',
+            destination: path.resolve(__dirname, '..', '..', 'faces'),
             filename: (req, file, cb) => {
-                const ext = path.extname(file.originalname);
-                const name = `${req.body.nombre}_${req.body.apellido}${ext}`;
-                cb(null, name);
+                cb(null, `${file.originalname}`);
             }
         })
     }))
-    async register(@UploadedFile() file, @Body() body) {
-        // Guarda info en base de datos como nombre, apellido, etc.
-        // Guarda la ruta de la imagen asociada a ese usuario
-        return { message: 'Usuario registrado con imagen' };
+    async register(@UploadedFile() file, @Body() body: { data: string }) {
+        const client: ClientDTO = JSON.parse(body.data);
+        return await this.clientService.registerClients(client, file ? file.filename : null)
     }
 
     @Post('/verify-face')
     @UseInterceptors(FileInterceptor('image', {
-        storage: diskStorage({
-            destination: './temp',
-            filename: (req, file, cb) => {
-                cb(null, `verificacion.jpg`);
-            }
-        })
+        storage: memoryStorage(),
+        // storage: diskStorage({
+        //     destination: path.resolve(__dirname, '..', '..', 'temp'),
+        //     filename: (req, file, cb) => {
+        //         cb(null, `verificacion.jpg`);
+        //     }
+        // })
     }))
     async verifyFace(@UploadedFile() file) {
-        const result = await this.faceService.runRecognition();
+        if (!file) {
+            throw new BadRequestException('No se recibió la imagen');
+        }
 
-        // si se identificó correctamente, puedes buscar en la DB
+        // Pasa el buffer al servicio de reconocimiento facial
+        const result = await this.faceService.runRecognition(file.buffer);
+        console.log(result);
+
+        // Buscar en la base de datos por el nombre reconocido
         const user = await this.clientService.findClientByName(result.name);
 
         return {
             success: result.match,
             nombre: result.name,
             puedeAcceder: result.match,
-            // proximaFechaPago: user?.proximaFechaPago || null,
+            // proximaFechaPago: user?.nextPaymentDate || null,
         };
     }
 

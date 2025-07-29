@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { findClient } from "@/services/client/client.service";
+import { findClient, verifyClientFace } from "@/services/client/client.service";
 import { ClientIdentification, IClients } from "@/services/client/client.interface";
 
 const videoConstraints = {
@@ -26,6 +26,7 @@ const videoConstraints = {
 
 export const Access = () => {
     const videoRef = useRef<HTMLVideoElement>(null)
+    const webcamRef = useRef<Webcam>(null);
     const [stream, setStream] = useState<MediaStream | null>(null)
     const [isScanning, setIsScanning] = useState<boolean>(false);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -87,6 +88,36 @@ export const Access = () => {
         }
     }, [stream])
 
+    const captureAndVerify = async () => {
+        const imageSrc = webcamRef.current?.getScreenshot();
+
+        if (!imageSrc) return;
+
+        // Convierte base64 a File como antes
+        const byteString = atob(imageSrc.split(',')[1]);
+        const mimeString = imageSrc.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        const file = new File([blob], 'verificacion.jpg', { type: mimeString });
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await verifyClientFace(formData)
+
+            // const { success, nombre, puedeAcceder, proximaFechaPago } = response.data;
+            // Aquí puedes mostrar un mensaje o actualizar el estado de acceso
+            console.log('Respuesta del servidor:', response.data);
+        } catch (error) {
+            console.error('Error en reconocimiento facial:', error);
+        }
+    };
+
     // const webcamRef = useRef(null);
     // const capture = useCallback(
     //     () => {
@@ -119,12 +150,15 @@ export const Access = () => {
                             <>
                                 <Webcam
                                     audio={false}
-                                    height={720}
-                                    // ref={webcamRef}
+                                    ref={webcamRef}
                                     screenshotFormat="image/jpeg"
-                                    width={1280}
+                                    width={320}
+                                    height={240}
                                     videoConstraints={videoConstraints}
                                 />
+                                <Button onClick={captureAndVerify} className="mt-4 bg-blue-600 hover:bg-blue-700">
+                                    Verificar acceso
+                                </Button>
                                 {/* <button onClick={capture}>Capture photo</button> */}
                             </>
                         ) : (

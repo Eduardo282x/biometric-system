@@ -39,9 +39,11 @@ export const postDataApi = async (url: string, body: any) => {
     try {
         return await api.post(url, body).then(res => {
             return res.data
+        }).catch(err => {
+            return err;
         })
     } catch (err) {
-        console.log(err);
+        return err;
     }
 }
 
