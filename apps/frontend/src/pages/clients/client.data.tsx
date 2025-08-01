@@ -60,6 +60,7 @@ export const clientsColumns: IColumns<IClients>[] = [
 
 export const RenderImage = ({ imageUrl }: { imageUrl: string }) => {
     const getImage = `http://localhost:3000/public/faces/${imageUrl}`;
+    // const getImage = `https://c8q2gmjq-3000.use2.devtunnels.ms/public/faces/${imageUrl}`;
     return (
         <div className="w-full flex items-center justify-center">
             <img className="w-10 h-10 rounded-full object-cover" alt="https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Free-Download.png" src={getImage} />

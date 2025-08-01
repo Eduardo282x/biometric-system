@@ -218,7 +218,7 @@ export const Access = () => {
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-lg text-zinc-500">Próximo pago</p>
-                                    <div className="flex items-center gap-2 text-2xl font-medium">
+                                    <div className="flex items-center gap-2 text-lg font-medium">
                                         <p>{clientDetected.nextPaymentDate}</p> - <p>29 Dias</p>
                                     </div>
                                 </div>
