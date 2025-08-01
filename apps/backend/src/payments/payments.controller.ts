@@ -13,6 +13,10 @@ export class PaymentsController {
     async getPayment() {
         return await this.paymentService.getPayment();
     }
+    @Get('/history')
+    async getPaymentHistory() {
+        return await this.paymentService.getPaymentHistory();
+    }
     @Post()
     async registerPayment(@Body() payment: PaymentDTO) {
         return await this.paymentService.registerPayment(payment);

@@ -31,30 +31,16 @@ enum Role {
 }
 
 model Client {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
   lastName    String
-  identify    String   @unique
+  identify    String     @unique
   email       String
   phone       String
   address     String
   photo       String? // opcional
-  createdDate DateTime @default(now())
-
-  planId Int?
-  plan   Plan? @relation(fields: [planId], references: [id])
-
-  payments        Payment[]
-  advancePayments AdvancePayment[]
-  historyPayments HistoryPayment[]
-}
-
-model Plan {
-  id          Int      @id @default(autoincrement())
-  name        String
-  price       Int
-  description String
-  clients     Client[]
+  createdDate DateTime   @default(now())
+  payments    Payment[]
 }
 
 model Payment {
@@ -68,28 +54,15 @@ model Payment {
   description   String
   datePay       DateTime @default(now())
   nextDatePay   DateTime
-
-  // ayuda a saber si este pago es un abono de un plan mensual
-  fromAdvancePaymentId Int?
-  fromAdvancePayment   AdvancePayment? @relation(fields: [fromAdvancePaymentId], references: [id])
 }
 
-model AdvancePayment {
-  id        Int       @id @default(autoincrement())
-  clientId  Int
-  client    Client    @relation(fields: [clientId], references: [id])
-  total     Int
-  remaining Int // lo que aún queda por usar
-  createdAt DateTime  @default(now())
-  payments  Payment[] // pagos mensuales cubiertos con este adelanto
-}
-
-model HistoryPayment {
-  id            Int      @id @default(autoincrement())
-  clientId      Int
-  client        Client   @relation(fields: [clientId], references: [id])
-  methodPayment String
-  amount        Int
-  description   String
-  datePay       DateTime @default(now())
+model Reminder {
+  id         String   @id @default(uuid())
+  name       String
+  subject    String
+  message    String
+  daysBefore Int
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

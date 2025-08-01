@@ -7,9 +7,9 @@ import { Access } from './pages/access/Access'
 import { Layout } from './layout/Layout'
 import { Clients } from './pages/clients/Clients'
 import { Notification } from './pages/notification/Notification'
-import { Plan } from './pages/plan/Plan'
 import { useAxiosInterceptor } from './services/Interceptor'
 import { Toaster } from 'react-hot-toast'
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   useAxiosInterceptor();
@@ -25,7 +25,6 @@ function App() {
             <Route path="/pagos" element={<Payment />} />
             <Route path="/acceso" element={<Access />} />
             <Route path="/clientes" element={<Clients />} />
-            <Route path="/planes" element={<Plan />} />
             <Route path="/recordatorios" element={<Notification />} />
           </Route>
 

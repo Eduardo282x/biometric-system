@@ -8,7 +8,7 @@ export const clientsColumns: IColumns<IClients>[] = [
     {
         label: 'Imagen',
         column: 'photo',
-        element: (data: IClients) => data.photo !== '' ? <RenderImage imageUrl={data.photo} /> : <div className="flex items-center justify-center w-10 mx-auto border rounded-full h-10 overflow-hidden"><FaRegUser size={20} /></div>
+        element: (data: IClients) => (data.photo !== '' && data.photo !== null) ? <RenderImage imageUrl={data.photo} /> : <div className="flex items-center justify-center w-10 mx-auto border rounded-full h-10 overflow-hidden"><FaRegUser size={20} /></div>
     },
     {
         label: 'Nombre',
@@ -59,10 +59,10 @@ export const clientsColumns: IColumns<IClients>[] = [
 ];
 
 export const RenderImage = ({ imageUrl }: { imageUrl: string }) => {
-    const getImage = `http://localhost:3000/public/faces/${imageUrl}`
+    const getImage = `http://localhost:3000/public/faces/${imageUrl}`;
     return (
         <div className="w-full flex items-center justify-center">
-            <img className="w-10 h-10 rounded-full object-cover" src={getImage} />
+            <img className="w-10 h-10 rounded-full object-cover" alt="https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Free-Download.png" src={getImage} />
         </div>
     )
 }

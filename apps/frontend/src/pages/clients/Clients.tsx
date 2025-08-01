@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableComponent } from "@/components/table/TableComponent";
-import { getClients, uploadPhotoClient } from "@/services/client/client.service";
+import { deleteClient, getClients, uploadPhotoClient } from "@/services/client/client.service";
 import { ClientBody, GroupClients, IClients } from "@/services/client/client.interface";
 import { FilterComponent } from "@/components/table/FilterComponent";
-import { ClientsForm } from "./ClientsForm";
+import { ClientsForm, DeleteClientDialog } from "./ClientsForm";
 import { clientsColumns } from "./client.data";
 
 export const Clients = () => {
     const [clients, setClients] = useState<GroupClients>({ allClients: [], clients: [] })
     const [clientSelected, setClientSelected] = useState<IClients | null>(null);
     const [open, setOpen] = useState<boolean>(false);
+    const [openDelete, setOpenDelete] = useState<boolean>(false);
 
     const handleExportToExcel = () => {
         // Mock export functionality
@@ -40,7 +41,14 @@ export const Clients = () => {
             setOpen(true);
         }
         if (action == 'delete') {
-            console.log('Eliminar');
+            setOpenDelete(true)
+        }
+    }
+
+    const deleteClientApi = async (erase: boolean) => {
+        if (clientSelected && erase) {
+            await deleteClient(clientSelected.id);
+            await getClientsApi();
         }
     }
 
@@ -113,8 +121,16 @@ export const Clients = () => {
                     data={clientSelected}
                     open={open}
                     setOpen={setOpen}
-                    onSubmit={() =>console.log('nada')}
+                    onSubmit={() => console.log('nada')}
                     onSubmitPicture={getActionForm}
+                />
+            )}
+
+            {openDelete && (
+                <DeleteClientDialog
+                    open={openDelete}
+                    setOpen={setOpenDelete}
+                    onDelete={deleteClientApi}
                 />
             )}
         </div>

@@ -12,6 +12,28 @@ export class PaymentsService {
     }
 
     async getPayment() {
+        const payments = await this.prismaService.payment.findMany({
+            orderBy: { datePay: 'desc' },
+            include: { client: true, user: true }
+        });
+
+        const latestPaymentsByClient: { [key: number]: any } = {};
+        payments.forEach(payment => {
+            if (!latestPaymentsByClient[payment.clientId]) {
+                latestPaymentsByClient[payment.clientId] = payment;
+            }
+        });
+
+        const today = new Date();
+        const result = Object.values(latestPaymentsByClient).map((payment: any) => ({
+            ...payment,
+            status: payment.nextDatePay > today
+        }));
+
+        return result;
+    }
+
+    async getPaymentHistory() {
         return await this.prismaService.payment.findMany();
     }
 

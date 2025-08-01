@@ -8,8 +8,6 @@ export class PaymentDTO {
     userId: number;
     @IsString()
     methodPayment: string;
-    @IsBoolean()
-    status: boolean;
     @IsNumber()
     amount: number;
     @IsString()

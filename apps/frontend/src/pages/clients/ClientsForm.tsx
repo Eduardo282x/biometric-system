@@ -1,18 +1,29 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { BaseFormProps } from "@/components/form.interface";
+import { BaseDialogProps, BaseFormProps } from "@/components/form.interface";
 import { ClientBody, IClients } from "@/services/client/client.interface";
 import { useForm } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Webcam from 'react-webcam';
 
-export interface ClientsForm extends BaseFormProps<IClients, ClientBody> {
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+export interface ClientsFormProps extends BaseFormProps<IClients, ClientBody> {
     onSubmitPicture: (picture: File | null, data: ClientBody) => void
 }
 
-export const ClientsForm = ({ open, setOpen, data, onSubmitPicture }: ClientsForm) => {
+export const ClientsForm = ({ open, setOpen, data, onSubmitPicture }: ClientsFormProps) => {
     // const isEdit = data ? true : false;
     const [file, setFile] = useState<File | null>(null);
     const webcamRef = useRef<Webcam>(null);
@@ -135,6 +146,28 @@ export const ClientsForm = ({ open, setOpen, data, onSubmitPicture }: ClientsFor
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+    )
+}
 
+interface DeleteClientDialogProps extends BaseDialogProps {
+    onDelete: (action: boolean) => void
+}
+
+export const DeleteClientDialog = ({ open, setOpen, onDelete }: DeleteClientDialogProps) => {
+    return (
+        <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogContent className="bg-zinc-900 text-white">
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminar cliente</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Estas seguro que desea eliminar este cliente?. Esta acción no se podrá deshacer.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel className="text-black" onClick={() => onDelete(false)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="bg-red-800 hover:bg-red-700" onClick={() => onDelete(true)} >Eliminar</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     )
 }

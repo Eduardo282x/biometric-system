@@ -132,10 +132,8 @@ export const Access = () => {
     return (
         <div className="text-white space-y-4">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight">Gestión de Recordatorios</h1>
-                <p className="text-muted-foreground">
-                    Configure recordatorios automáticos por correo electrónico para los pagos de mensualidades.
-                </p>
+                <h1 className="text-2xl font-bold tracking-tight">Control de Acceso</h1>
+
             </div>
             <div className="grid gap-6 md:grid-cols-2 text-white">
 
@@ -197,30 +195,30 @@ export const Access = () => {
                         {clientDetected && isDetected ? (
                             <>
                                 <div className="space-y-1">
-                                    <p className="text-sm text-zinc-500">Nombre completo</p>
-                                    <p className="text-lg font-medium">
+                                    <p className="text-lg text-zinc-500">Nombre completo</p>
+                                    <p className="text-2xl font-medium">
                                         {clientDetected.name} {clientDetected.lastName}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-sm text-zinc-500">Estado de acceso</p>
+                                    <p className="text-lg text-zinc-500">Estado de acceso</p>
                                     <div className="flex items-center gap-2">
                                         {clientDetected.accessStatus ? (
                                             <>
                                                 <CheckCircle className="h-5 w-5 text-green-500" />
-                                                <p className="text-lg font-medium text-green-500">Acceso permitido</p>
+                                                <p className="text-2xl font-medium text-green-500">Acceso permitido</p>
                                             </>
                                         ) : (
                                             <>
                                                 <XCircle className="h-5 w-5 text-red-500" />
-                                                <p className="text-lg font-medium text-red-500">Acceso denegado</p>
+                                                <p className="text-2xl font-medium text-red-500">Acceso denegado</p>
                                             </>
                                         )}
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-sm text-zinc-500">Próximo pago</p>
-                                    <div className="flex items-center gap-2 text-lg font-medium">
+                                    <p className="text-lg text-zinc-500">Próximo pago</p>
+                                    <div className="flex items-center gap-2 text-2xl font-medium">
                                         <p>{clientDetected.nextPaymentDate}</p> - <p>29 Dias</p>
                                     </div>
                                 </div>

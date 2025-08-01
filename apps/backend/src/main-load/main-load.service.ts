@@ -32,23 +32,6 @@ export class MainLoadService {
                 },
             });
 
-            // Planes
-            const planBasico = await this.prisma.plan.create({
-                data: {
-                    name: 'Plan Básico',
-                    price: 25,
-                    description: 'Acceso al gimnasio de lunes a viernes',
-                },
-            });
-
-            const planPremium = await this.prisma.plan.create({
-                data: {
-                    name: 'Plan Premium',
-                    price: 40,
-                    description: 'Acceso full + entrenador personalizado',
-                },
-            });
-
             // Clientes
             const cliente1 = await this.prisma.client.create({
                 data: {
@@ -59,7 +42,6 @@ export class MainLoadService {
                     phone: '04141234567',
                     address: 'Av. Urdaneta',
                     photo: 'Ana_Gomez.jpg',
-                    planId: planBasico.id,
                 },
             });
 
@@ -71,7 +53,6 @@ export class MainLoadService {
                     email: 'carlos@gym.com',
                     phone: '04149876543',
                     address: 'Calle 100',
-                    planId: planPremium.id,
                 },
             });
 
@@ -99,15 +80,6 @@ export class MainLoadService {
                 },
             });
 
-            // Pago por adelantado (cliente2)
-            const adelanto = await this.prisma.advancePayment.create({
-                data: {
-                    clientId: cliente2.id,
-                    total: 100,
-                    remaining: 50, // ya se usaron 2 mensualidades
-                },
-            });
-
             await this.prisma.payment.createMany({
                 data: [
                     {
@@ -118,7 +90,6 @@ export class MainLoadService {
                         description: 'Pago julio desde adelanto',
                         datePay: new Date('2025-07-01'),
                         nextDatePay: new Date('2025-08-01'),
-                        fromAdvancePaymentId: adelanto.id,
                     },
                     {
                         clientId: cliente2.id,
@@ -128,7 +99,6 @@ export class MainLoadService {
                         description: 'Pago agosto desde adelanto',
                         datePay: new Date('2025-08-01'),
                         nextDatePay: new Date('2025-09-01'),
-                        fromAdvancePaymentId: adelanto.id,
                     },
                 ],
             });

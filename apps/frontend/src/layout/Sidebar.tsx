@@ -1,4 +1,4 @@
-import { Users, CreditCard, Camera, LogOut, Package, Bell } from "lucide-react"
+import { Users, CreditCard, Camera, LogOut, Bell } from "lucide-react"
 import { useLocation, Link } from "react-router"
 
 import { cn } from "@/lib/utils"
@@ -7,14 +7,9 @@ import { GrGroup } from "react-icons/gr";
 
 const navItems = [
     {
-        name: "Verificación de Acceso",
+        name: "Control de Acceso",
         href: "/acceso",
         icon: Camera,
-    },
-    {
-        name: "Gestión de Usuarios",
-        href: "/usuarios",
-        icon: Users,
     },
     {
         name: "Gestión de Clientes",
@@ -22,20 +17,21 @@ const navItems = [
         icon: GrGroup,
     },
     {
+        name: "Gestión de Pagos",
+        href: "/pagos",
+        icon: CreditCard,
+    },
+    {
         name: "Gestión de Recordatorios",
         href: "/recordatorios",
         icon: Bell,
     },
     {
-        name: "Gestión de Planes",
-        href: "/planes",
-        icon: Package,
+        name: "Gestión de Usuarios",
+        href: "/usuarios",
+        icon: Users,
     },
-    {
-        name: "Gestión de Pagos",
-        href: "/pagos",
-        icon: CreditCard,
-    },
+
 ]
 
 export function Sidebar() {

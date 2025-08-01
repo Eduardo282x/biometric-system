@@ -13,13 +13,12 @@ export class ClientsService {
 
     async getClients() {
         return await this.prismaService.client.findMany({
-            include: { plan: true }
+            orderBy: { id: 'asc' }
         });
     }
     async findClientByIdentification(client: ClientIdentificationDTO) {
         const findClient = await this.prismaService.client.findFirst({
             where: { identify: client.identify },
-            include: { plan: true }
         });
 
         if (findClient) {
@@ -41,7 +40,7 @@ export class ClientsService {
 
     async registerClients(client: ClientDTO, photo: string | null) {
         console.log(photo);
-        
+
         try {
             const findDuplicate = await this.prismaService.client.findFirst({
                 where: {
