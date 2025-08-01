@@ -1,64 +1,45 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { Settings, Plus, Pencil, Trash2, Send, Clock, CheckCircle } from "lucide-react"
-
+import { Plus, Pencil, Trash2, Clock, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DeleteReminderDialog, NotificationForm } from "./NotificationForm"
+import { IReminder, ReminderBody } from "@/services/reminder/reminder.interface"
 
 // Mock reminder configurations
-const mockReminderConfigs = [
+const mockReminderConfigs: IReminder[] = [
     {
         id: 1,
         name: "Primer Recordatorio",
-        daysBeforeExpiry: 7,
+        daysBefore: 7,
         isActive: true,
         subject: "Recordatorio: Tu mensualidad vence pronto",
+        createdAt: new Date(),
+        updatedAt: new Date(),
         message:
             "Hola {nombre}, te recordamos que tu mensualidad del gimnasio vence el {fecha_vencimiento}. Por favor, realiza tu pago a tiempo para evitar interrupciones en tu acceso.",
     },
     {
         id: 2,
         name: "Segundo Recordatorio",
-        daysBeforeExpiry: 3,
+        daysBefore: 3,
         isActive: true,
         subject: "Urgente: Tu mensualidad vence en 3 días",
+        createdAt: new Date(),
+        updatedAt: new Date(),
         message:
             "Hola {nombre}, tu mensualidad vence el {fecha_vencimiento}. Te pedimos que realices tu pago lo antes posible para mantener tu acceso al gimnasio.",
     },
     {
         id: 3,
         name: "Recordatorio de Vencimiento",
-        daysBeforeExpiry: 0,
+        daysBefore: 0,
         isActive: false,
         subject: "Tu mensualidad ha vencido",
+        createdAt: new Date(),
+        updatedAt: new Date(),
         message:
             "Hola {nombre}, tu mensualidad venció el {fecha_vencimiento}. Por favor, realiza tu pago para reactivar tu acceso al gimnasio.",
     },
@@ -98,26 +79,13 @@ const mockReminderHistory = [
 export const Notification = () => {
     const [reminderConfigs, setReminderConfigs] = useState(mockReminderConfigs)
     const [reminderHistory, setReminderHistory] = useState(mockReminderHistory)
-    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-    const [currentReminder, setCurrentReminder] = useState<(typeof mockReminderConfigs)[0] | null>(null)
+    const [openForm, setOpenForm] = useState<boolean>(false)
+    const [openDelete, setOpenDelete] = useState<boolean>(false)
+    const [reminderSelected, setReminderSelected] = useState<IReminder | null>(null)
 
-    // Email configuration state
-    const [emailConfig, setEmailConfig] = useState({
-        smtpServer: "smtp.gmail.com",
-        smtpPort: "587",
-        email: "gym@example.com",
-        password: "••••••••",
-        senderName: "GYM ACCESS",
-    })
-
-    const handleEdit = (reminder: (typeof mockReminderConfigs)[0]) => {
-        setCurrentReminder(reminder)
-        setIsEditDialogOpen(true)
-    }
-
-    const handleDelete = (reminderId: number) => {
-        setReminderConfigs(reminderConfigs.filter((reminder) => reminder.id !== reminderId))
+    const handleEdit = (reminder: IReminder) => {
+        setReminderSelected(reminder);
+        setOpenForm(true);
     }
 
     const handleToggleActive = (reminderId: number) => {
@@ -128,13 +96,27 @@ export const Notification = () => {
         )
     }
 
-    const handleTestEmail = () => {
-        alert("Enviando correo de prueba...")
+    const openNotificationForm = () => {
+        setReminderSelected(null);
+        setOpenForm(true)
+    }
+
+    const getChangesForm = (data: ReminderBody) => {
+        console.log(data);
+        setOpenForm(false);
+    }
+
+    const deleteReminder = (data: boolean) => {
+        console.log(data);
+        if (data && reminderSelected) {
+            setOpenForm(false);
+        }
     }
 
     useEffect(() => {
         setReminderHistory(mockReminderHistory)
-    }, [])
+    }, []);
+
 
     return (
         <div className="space-y-6 text-white">
@@ -146,10 +128,9 @@ export const Notification = () => {
             </div>
 
             <Tabs defaultValue="configurations" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-3 bg-[#262626] p-1 h-full">
-                    <TabsTrigger value="configurations">Configuraciones</TabsTrigger>
-                    <TabsTrigger value="history">Historial</TabsTrigger>
-                    <TabsTrigger value="email-settings">Configuración Email</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 bg-[#262626] p-1 h-full">
+                    <TabsTrigger className="cursor-pointer" value="configurations">Configuraciones</TabsTrigger>
+                    <TabsTrigger className="cursor-pointer" value="history">Historial</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="configurations" className="space-y-4">
@@ -160,68 +141,10 @@ export const Notification = () => {
                                 Configure cuándo y cómo enviar recordatorios a los clientes.
                             </p>
                         </div>
-                        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-blue-600 hover:bg-blue-700">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Agregar Recordatorio
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[600px] bg-zinc-900 border-zinc-800">
-                                <DialogHeader>
-                                    <DialogTitle>Agregar Recordatorio</DialogTitle>
-                                    <DialogDescription>Configure un nuevo recordatorio automático.</DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="reminder-name">Nombre del Recordatorio</Label>
-                                            <Input id="reminder-name" className="bg-zinc-950 border-zinc-800" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="days-before">Días antes del vencimiento</Label>
-                                            <Select>
-                                                <SelectTrigger className="bg-zinc-950 border-zinc-800">
-                                                    <SelectValue placeholder="Seleccionar días" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-zinc-900 border-zinc-800">
-                                                    <SelectItem value="0">El mismo día</SelectItem>
-                                                    <SelectItem value="1">1 día antes</SelectItem>
-                                                    <SelectItem value="3">3 días antes</SelectItem>
-                                                    <SelectItem value="7">7 días antes</SelectItem>
-                                                    <SelectItem value="15">15 días antes</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="subject">Asunto del correo</Label>
-                                        <Input id="subject" className="bg-zinc-950 border-zinc-800" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="message">Mensaje</Label>
-                                        <Textarea
-                                            id="message"
-                                            className="bg-zinc-950 border-zinc-800"
-                                            rows={4}
-                                            placeholder="Usa {nombre} para el nombre del cliente y {fecha_vencimiento} para la fecha de vencimiento"
-                                        />
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <Switch id="active" />
-                                        <Label htmlFor="active">Activar recordatorio</Label>
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                                        Cancelar
-                                    </Button>
-                                    <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setIsAddDialogOpen(false)}>
-                                        Guardar
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                        <Button onClick={openNotificationForm} className="bg-blue-600 hover:bg-blue-700">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Agregar Recordatorio
+                        </Button>
                     </div>
 
                     <div className="grid gap-4">
@@ -231,9 +154,9 @@ export const Notification = () => {
                                     <div className="space-y-1">
                                         <CardTitle className="text-white">{reminder.name}</CardTitle>
                                         <CardDescription>
-                                            {reminder.daysBeforeExpiry === 0
+                                            {reminder.daysBefore === 0
                                                 ? "El mismo día del vencimiento"
-                                                : `${reminder.daysBeforeExpiry} días antes del vencimiento`}
+                                                : `${reminder.daysBefore} días antes del vencimiento`}
                                         </CardDescription>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -244,30 +167,9 @@ export const Notification = () => {
                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(reminder)}>
                                             <Pencil className="h-4 w-4 text-white" />
                                         </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-zinc-900 border-zinc-800">
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        Esta acción eliminará permanentemente el recordatorio "{reminder.name}".
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                    <AlertDialogAction
-                                                        onClick={() => handleDelete(reminder.id)}
-                                                        className="bg-red-600 hover:bg-red-700"
-                                                    >
-                                                        Eliminar
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        <Button variant="ghost" size="icon" onClick={() => setOpenDelete(true)} className="text-red-500 hover:text-red-700">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="-mt-6">
@@ -328,159 +230,25 @@ export const Notification = () => {
                                         </TableCell>
                                     </TableRow>
                                 ))}
-                                
+
                             </TableBody>
                         </Table>
                     </div>
                 </TabsContent>
-
-                <TabsContent value="email-settings" className="space-y-4">
-                    <div>
-                        <h3 className="text-lg font-medium">Configuración de Correo Electrónico</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Configure los parámetros SMTP para el envío de correos electrónicos.
-                        </p>
-                    </div>
-
-                    <Card className="bg-zinc-900 border-zinc-800">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Settings className="h-5 w-5" />
-                                Configuración SMTP
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="smtp-server">Servidor SMTP</Label>
-                                    <Input
-                                        id="smtp-server"
-                                        value={emailConfig.smtpServer}
-                                        onChange={(e) => setEmailConfig({ ...emailConfig, smtpServer: e.target.value })}
-                                        className="bg-zinc-950 border-zinc-800"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="smtp-port">Puerto</Label>
-                                    <Input
-                                        id="smtp-port"
-                                        value={emailConfig.smtpPort}
-                                        onChange={(e) => setEmailConfig({ ...emailConfig, smtpPort: e.target.value })}
-                                        className="bg-zinc-950 border-zinc-800"
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="sender-name">Nombre del remitente</Label>
-                                <Input
-                                    id="sender-name"
-                                    value={emailConfig.senderName}
-                                    onChange={(e) => setEmailConfig({ ...emailConfig, senderName: e.target.value })}
-                                    className="bg-zinc-950 border-zinc-800"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Correo electrónico</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    value={emailConfig.email}
-                                    onChange={(e) => setEmailConfig({ ...emailConfig, email: e.target.value })}
-                                    className="bg-zinc-950 border-zinc-800"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Contraseña</Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    value={emailConfig.password}
-                                    onChange={(e) => setEmailConfig({ ...emailConfig, password: e.target.value })}
-                                    className="bg-zinc-950 border-zinc-800"
-                                />
-                            </div>
-                            <div className="flex gap-2 pt-4">
-                                <Button className="bg-blue-600 hover:bg-blue-700">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    Guardar Configuración
-                                </Button>
-                                <Button variant="outline" onClick={handleTestEmail}>
-                                    <Send className="mr-2 h-4 w-4" />
-                                    Enviar Correo de Prueba
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
             </Tabs>
 
-            {/* Edit Reminder Dialog */}
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="sm:max-w-[600px] bg-zinc-900 border-zinc-800">
-                    <DialogHeader>
-                        <DialogTitle>Editar Recordatorio</DialogTitle>
-                        <DialogDescription>Modifique la configuración del recordatorio.</DialogDescription>
-                    </DialogHeader>
-                    {currentReminder && (
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-reminder-name">Nombre del Recordatorio</Label>
-                                    <Input
-                                        id="edit-reminder-name"
-                                        defaultValue={currentReminder.name}
-                                        className="bg-zinc-950 border-zinc-800"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-days-before">Días antes del vencimiento</Label>
-                                    <Select defaultValue={currentReminder.daysBeforeExpiry.toString()}>
-                                        <SelectTrigger className="bg-zinc-950 border-zinc-800">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-zinc-900 border-zinc-800">
-                                            <SelectItem value="0">El mismo día</SelectItem>
-                                            <SelectItem value="1">1 día antes</SelectItem>
-                                            <SelectItem value="3">3 días antes</SelectItem>
-                                            <SelectItem value="7">7 días antes</SelectItem>
-                                            <SelectItem value="15">15 días antes</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="edit-subject">Asunto del correo</Label>
-                                <Input
-                                    id="edit-subject"
-                                    defaultValue={currentReminder.subject}
-                                    className="bg-zinc-950 border-zinc-800"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="edit-message">Mensaje</Label>
-                                <Textarea
-                                    id="edit-message"
-                                    defaultValue={currentReminder.message}
-                                    className="bg-zinc-950 border-zinc-800"
-                                    rows={4}
-                                />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Switch id="edit-active" defaultChecked={currentReminder.isActive} />
-                                <Label htmlFor="edit-active">Activar recordatorio</Label>
-                            </div>
-                        </div>
-                    )}
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                            Cancelar
-                        </Button>
-                        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setIsEditDialogOpen(false)}>
-                            Guardar Cambios
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+
+            <NotificationForm
+                open={openForm}
+                setOpen={setOpenForm}
+                data={reminderSelected}
+                onSubmit={getChangesForm}
+            />
+            <DeleteReminderDialog
+                open={openDelete}
+                setOpen={setOpenDelete}
+                onDelete={deleteReminder}
+            />
         </div>
     )
 }

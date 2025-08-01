@@ -210,7 +210,7 @@ export const Access = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <XCircle className="h-5 w-5 text-red-500" />
+                                            <XCircle className="h-5 w-5 text-red-500" />
                                                 <p className="text-2xl font-medium text-red-500">Acceso denegado</p>
                                             </>
                                         )}
