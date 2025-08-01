@@ -12,6 +12,15 @@ export class MainLoadService {
     async mainLoad() {
         try {
             // Usuarios
+            const admin = await this.prisma.user.create({
+                data: {
+                    username: 'Alvaro01',
+                    name: 'Alvaro',
+                    lastName: 'Rios',
+                    password: 'admin123',
+                    role: 'ADMIN',
+                },
+            });
             const gerente = await this.prisma.user.create({
                 data: {
                     username: 'gerente01',
