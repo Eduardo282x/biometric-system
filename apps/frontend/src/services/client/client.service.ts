@@ -1,19 +1,11 @@
 import { deleteDataApi, getDataApi, postDataApi, postFilesDataApi, putDataApi } from "../api";
-import { ClientBody, ClientIdentification } from "./client.interface";
+import { ClientBody } from "./client.interface";
 
 const clientURL = '/clients';
 
 export const getClients = async () => {
     try {
         return await getDataApi(clientURL);
-    } catch (err) {
-        return err;
-    }
-}
-
-export const findClient = async (data: ClientIdentification) => {
-    try {
-        return await postDataApi(`${clientURL}/find`, data);
     } catch (err) {
         return err;
     }

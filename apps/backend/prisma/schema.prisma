@@ -20,12 +20,10 @@ model User {
   lastName String
   password String
   role     Role   @default(RECEPCIONISTA)
-
   payments Payment[] // pagos que este usuario ha registrado
 }
 
 enum Role {
-  ADMIN
   GERENTE
   RECEPCIONISTA
 }

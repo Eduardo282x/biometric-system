@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaymentDTO } from './payment.dto';
+import { ClientIdentificationDTO } from 'src/clients/clients.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -33,8 +34,55 @@ export class PaymentsService {
         return result;
     }
 
+    async getPaymentClient(client: ClientIdentificationDTO) {
+        try {
+            const today = new Date();
+
+            const findClient = await this.prismaService.client.findFirst({
+                where: { identify: client.identify }
+            });
+
+            if (!findClient) {
+                badResponse.message = `No se encontró el cliente`
+                return badResponse;
+            }
+
+            const findClientPayment = await this.prismaService.payment.findFirst({
+                where: { client: { identify: client.identify } }
+            });
+
+            if (!findClientPayment) {
+                badResponse.message = `No se encontró ningún pago de este cliente`
+                return badResponse;
+            }
+
+            const paymentClient = await this.prismaService.payment.findFirst({
+                orderBy: { datePay: 'desc' },
+                include: { client: true, user: true },
+                where: { client: { identify: client.identify } }
+            }).then(item => {
+                return {
+                    ...item,
+                    status: item.nextDatePay > today
+                }
+            })
+
+            return {
+                message: 'Cliente encontrado.',
+                success: true,
+                data: paymentClient
+            };
+        } catch (err) {
+            badResponse.message = `Ha ocurrido un error ${err.message}`
+            return badResponse;
+        }
+    }
+
     async getPaymentHistory() {
-        return await this.prismaService.payment.findMany();
+        return await this.prismaService.payment.findMany({
+            orderBy: { datePay: 'desc' },
+            include: { client: true, user: true }
+        });
     }
 
     async registerPayment(payment: PaymentDTO) {

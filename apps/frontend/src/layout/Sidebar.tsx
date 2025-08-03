@@ -1,5 +1,5 @@
 import { Users, CreditCard, Camera, LogOut, Bell } from "lucide-react"
-import { useLocation, Link } from "react-router"
+import { useLocation, Link, useNavigate } from "react-router"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -35,7 +35,13 @@ const navItems = [
 ]
 
 export function Sidebar() {
-    const pathname = useLocation()
+    const pathname = useLocation();
+    const navigate = useNavigate();
+
+    const logout = () => {
+        localStorage.removeItem('userData')
+        navigate('/login')
+    }
 
     return (
         <div className="flex h-full w-64 flex-col border-r border-zinc-800 bg-zinc-900">
@@ -60,15 +66,14 @@ export function Sidebar() {
                 </nav>
             </div>
             <div className="mt-auto p-4">
-                <Link to="/login">
-                    <Button
-                        variant="outline"
-                        className="w-full justify-start gap-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-                    >
-                        <LogOut className="h-4 w-4" />
-                        Cerrar Sesión
-                    </Button>
-                </Link>
+                <Button
+                    onClick={logout}
+                    variant="outline"
+                    className="w-full justify-start gap-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+                >
+                    <LogOut className="h-4 w-4" />
+                    Cerrar Sesión
+                </Button>
             </div>
         </div>
     )

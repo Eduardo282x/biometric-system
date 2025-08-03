@@ -24,11 +24,11 @@ export const Login = () => {
     })
 
     const onSubmit = async (data: ILogin) => {
-    setIsLoading(true)
-
+        setIsLoading(true)
         const response: BaseResponse = await authLogin(data);
 
         if (response.success) {
+            localStorage.setItem('userData', JSON.stringify(response.userData))
             setTimeout(() => {
                 navigate("/acceso");
             }, 1500);

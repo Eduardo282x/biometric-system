@@ -14,8 +14,11 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { findClient, verifyClientFace } from "@/services/client/client.service";
-import { ClientIdentification, IClients } from "@/services/client/client.interface";
+import { verifyClientFace } from "@/services/client/client.service";
+import { ClientIdentification } from "@/services/client/client.interface";
+import { findClient } from "@/services/access/access.service";
+import { IPayment } from "@/services/payment/payment.interface";
+import { formatDateShort } from "@/lib/formatters";
 
 const videoConstraints = {
     width: 1280,
@@ -31,7 +34,7 @@ export const Access = () => {
     const [isScanning, setIsScanning] = useState<boolean>(false);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [isDetected, setIsDetected] = useState<boolean>(false)
-    const [clientDetected, setClientDetected] = useState<IClients | null>(null);
+    const [clientDetected, setClientDetected] = useState<IPayment | null>(null);
 
     const openSearch = () => {
         setOpenDialog(true)
@@ -41,7 +44,7 @@ export const Access = () => {
         const response = await findClient(data);
         if (response.success) {
             setIsDetected(true);
-            setClientDetected(response.data as IClients)
+            setClientDetected(response.data as IPayment)
             setOpenDialog(false)
         } else {
             setIsDetected(false);
@@ -197,13 +200,13 @@ export const Access = () => {
                                 <div className="space-y-1">
                                     <p className="text-lg text-zinc-500">Nombre completo</p>
                                     <p className="text-2xl font-medium">
-                                        {clientDetected.name} {clientDetected.lastName}
+                                        {clientDetected.client.name} {clientDetected.client.lastName}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-lg text-zinc-500">Estado de acceso</p>
                                     <div className="flex items-center gap-2">
-                                        {clientDetected.accessStatus ? (
+                                        {clientDetected.status ? (
                                             <>
                                                 <CheckCircle className="h-5 w-5 text-green-500" />
                                                 <p className="text-2xl font-medium text-green-500">Acceso permitido</p>
@@ -219,7 +222,7 @@ export const Access = () => {
                                 <div className="space-y-1">
                                     <p className="text-lg text-zinc-500">Próximo pago</p>
                                     <div className="flex items-center gap-2 text-lg font-medium">
-                                        <p>{clientDetected.nextPaymentDate}</p> - <p>29 Dias</p>
+                                        <p>{formatDateShort(clientDetected.nextDatePay)}</p> - <p>29 Dias</p>
                                     </div>
                                 </div>
                             </>

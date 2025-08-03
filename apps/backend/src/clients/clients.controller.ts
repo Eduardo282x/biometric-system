@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ClientsService } from './clients.service';
-import { ClientDTO, ClientIdentificationDTO } from './clients.dto';
+import { ClientDTO } from './clients.dto';
 import { diskStorage, memoryStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FaceService } from './face.service';
@@ -67,11 +67,6 @@ export class ClientsController {
             puedeAcceder: result.match,
             // proximaFechaPago: user?.nextPaymentDate || null,
         };
-    }
-
-    @Post('/find')
-    async findClientByIdentification(@Body() client: ClientIdentificationDTO) {
-        return await this.clientService.findClientByIdentification(client);
     }
 
     @Put('/:id')

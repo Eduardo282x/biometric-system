@@ -16,19 +16,6 @@ export class ClientsService {
             orderBy: { id: 'asc' }
         });
     }
-    async findClientByIdentification(client: ClientIdentificationDTO) {
-        const findClient = await this.prismaService.client.findFirst({
-            where: { identify: client.identify },
-        });
-
-        if (findClient) {
-            baseResponse.data = findClient;
-            baseResponse.message = 'Cliente encontrado.'
-            return baseResponse;
-        }
-        badResponse.message = 'Cliente no encontrado.'
-        return badResponse;
-    }
 
     async findClientByName(clientName: string): Promise<Client> {
         return await this.prismaService.client.findFirst({

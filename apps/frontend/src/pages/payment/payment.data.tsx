@@ -1,7 +1,7 @@
 import { IColumns } from "@/components/table/TableComponent";
 import { Pencil, Trash2 } from "lucide-react";
 import { IPayment } from "@/services/payment/payment.interface";
-import { formatDateShort, formatHourShort } from "@/lib/formatters";
+import { formatDateShort, formatHourShort, formatOnlyNumberWithDots } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 
 export const paymentColumns: IColumns<IPayment>[] = [
@@ -13,7 +13,7 @@ export const paymentColumns: IColumns<IPayment>[] = [
     {
         label: 'Monto',
         column: 'amount',
-        element: (data: IPayment) => `${data.amount}$`
+        element: (data: IPayment) => `${formatOnlyNumberWithDots(data.amount)}$`
     },
     {
         label: 'Método de pago',
@@ -60,5 +60,43 @@ export const paymentColumns: IColumns<IPayment>[] = [
         icon: true,
         className: () => 'text-red-700',
         Icon: Trash2
+    }
+];
+
+export const paymentHistoryColumns: IColumns<IPayment>[] = [
+    {
+        label: 'Cliente',
+        column: 'client',
+        element: (data: IPayment) => `${data.client.name} ${data.client.lastName}`
+    },
+    {
+        label: 'Monto',
+        column: 'amount',
+        element: (data: IPayment) => `${formatOnlyNumberWithDots(data.amount)}$`
+    },
+    {
+        label: 'Método de pago',
+        column: 'methodPayment',
+        element: (data: IPayment) => data.methodPayment
+    },
+    {
+        label: 'Fecha',
+        column: 'datePay',
+        element: (data: IPayment) => formatDateShort(data.datePay)
+    },
+    {
+        label: 'Hora',
+        column: 'datePay',
+        element: (data: IPayment) => formatHourShort(data.datePay)
+    },
+    {
+        label: 'Proximo Pago',
+        column: 'nextDatePay',
+        element: (data: IPayment) => formatDateShort(data.nextDatePay)
+    },
+    {
+        label: 'Registrado por',
+        column: 'user',
+        element: (data: IPayment) => `${data.user.name} ${data.user.lastName}`
     }
 ];
