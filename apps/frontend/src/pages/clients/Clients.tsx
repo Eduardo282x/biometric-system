@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TableComponent } from "@/components/table/TableComponent";
+import { IColumns, TableComponent } from "@/components/table/TableComponent";
 import { deleteClient, generateClientReportPDF, getClients, uploadPhotoClient } from "@/services/client/client.service";
 import { ClientBody, GroupClients, IClients } from "@/services/client/client.interface";
 import { FilterComponent } from "@/components/table/FilterComponent";
 import { ClientsForm, DeleteClientDialog } from "./ClientsForm";
 import { clientsColumns } from "./client.data";
+import { IUser } from "@/services/user/user.interface";
 
 export const Clients = () => {
     const [clients, setClients] = useState<GroupClients>({ allClients: [], clients: [] })
     const [clientSelected, setClientSelected] = useState<IClients | null>(null);
     const [open, setOpen] = useState<boolean>(false);
+    const [columns, setColumns] = useState<IColumns<IClients>[]>(clientsColumns);
     const [openDelete, setOpenDelete] = useState<boolean>(false);
 
     const handleExportToExcel = async () => {
@@ -28,7 +30,15 @@ export const Clients = () => {
 
     useEffect(() => {
         getClientsApi();
+        const getUserData: IUser = JSON.parse(localStorage.getItem('userData') as string);
+        if (getUserData && getUserData.role == 'RECEPCIONISTA') {
+            validateUser()
+        }
     }, [])
+
+    const validateUser = () => {
+        setColumns(clientsColumns.filter(item => !item.icon))
+    }
 
     const getClientsApi = async () => {
         try {
@@ -97,7 +107,7 @@ export const Clients = () => {
                 <div className="relative w-72">
                     <FilterComponent
                         data={clients.allClients}
-                        columns={clientsColumns}
+                        columns={columns}
                         placeholder="Buscar clientes..."
                         onSearch={onFilterUser}
                     />
@@ -118,7 +128,7 @@ export const Clients = () => {
 
             <TableComponent
                 data={clients.clients}
-                columns={clientsColumns}
+                columns={columns}
                 actionTable={getActionTable}
             />
 
