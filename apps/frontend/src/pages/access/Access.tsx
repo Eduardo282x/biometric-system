@@ -22,6 +22,9 @@ import { formatDateShort, getDaysUntil } from "@/lib/formatters";
 import { ScreenLoader } from "@/components/loaders/ScreenLoader";
 import { RenderImage } from "../clients/client.data";
 
+import accessMP3 from '@/assets/sound/efecto-de-sonido-respuesta-correcta.mp3'
+import accessDenideMP3 from '@/assets/sound/sound-effect--non-copyright-sound-effects--feesou.mp3'
+
 const videoConstraints = {
     width: 1280,
     height: 720,
@@ -52,6 +55,15 @@ export const Access = () => {
         } else {
             setIsDetected(false);
         }
+
+        if (response.success) {
+            const audio = new Audio(accessMP3);
+            audio.play().catch(err => console.error("Error reproduciendo audio:", err));
+        } else {
+            const audio = new Audio(accessDenideMP3);
+            audio.play().catch(err => console.error("Error reproduciendo audio:", err));
+        }
+
     }
 
     const startCamera = async () => {
@@ -110,6 +122,14 @@ export const Access = () => {
             const response = await verifyClientFace(formData);
             setIsDetected(true);
             setClientDetected(response.data as IPayment);
+            if (response.success) {
+                const audio = new Audio(accessMP3);
+                audio.play().catch(err => console.error("Error reproduciendo audio:", err));
+            } else {
+                const audio = new Audio(accessDenideMP3);
+                audio.play().catch(err => console.error("Error reproduciendo audio:", err));
+            }
+
             setTimeout(() => {
                 setStream(null)
                 setIsScanning(false)
@@ -220,7 +240,7 @@ export const Access = () => {
                                 </div>
 
                                 <div className="py-6">
-                                    <RenderImage imageUrl={clientDetected.client.photo} maxSize={true}/>
+                                    <RenderImage imageUrl={clientDetected.client.photo} maxSize={true} />
                                 </div>
                             </div>
                         ) : (
