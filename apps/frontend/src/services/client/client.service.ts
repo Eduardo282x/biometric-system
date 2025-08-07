@@ -1,4 +1,4 @@
-import { deleteDataApi, getDataApi, postDataApi, postFilesDataApi, putDataApi } from "../api";
+import { deleteDataApi, getDataApi, getDataFileApi, postDataApi, postFilesDataApi, putDataApi } from "../api";
 import { ClientBody } from "./client.interface";
 
 const clientURL = '/clients';
@@ -6,6 +6,13 @@ const clientURL = '/clients';
 export const getClients = async () => {
     try {
         return await getDataApi(clientURL);
+    } catch (err) {
+        return err;
+    }
+}
+export const generateClientReportPDF = async () => {
+    try {
+        return await getDataFileApi(`${clientURL}/export`);
     } catch (err) {
         return err;
     }

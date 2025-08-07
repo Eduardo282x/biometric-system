@@ -1,7 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { ClientDTO } from './clients.dto';
 import { diskStorage, memoryStorage } from 'multer';
+import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FaceService } from './face.service';
 import * as path from 'path';
@@ -22,6 +23,11 @@ export class ClientsController {
     @Get()
     async getClients() {
         return await this.clientService.getClients();
+    }
+
+    @Get('/export')
+    async exportClients(@Res() res: Response) {
+        return await this.clientService.exportClientsToExcel(res);
     }
     // @Post()
     // async registerClients(@Body() client: ClientDTO) {

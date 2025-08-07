@@ -59,7 +59,7 @@ export const Users = () => {
         <div className="space-y-4 text-white">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Gestión de Usuarios</h1>
-                <p className="text-muted-foreground">Administre los usuarios del gimnasio.</p>
+                <p className="text-gray-100">Administre los usuarios del gimnasio.</p>
             </div>
             <div className="flex items-center justify-between">
                 <div className="w-72">

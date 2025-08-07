@@ -122,7 +122,7 @@ export const Notification = () => {
         <div className="space-y-6 text-white">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight ">Gestión de Recordatorios</h1>
-                <p className="text-muted-foreground">
+                <p className="text-gray-100">
                     Configure recordatorios automáticos por correo electrónico para los pagos de mensualidades.
                 </p>
             </div>
@@ -137,7 +137,7 @@ export const Notification = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-medium">Recordatorios Configurados</h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-gray-100">
                                 Configure cuándo y cómo enviar recordatorios a los clientes.
                             </p>
                         </div>
@@ -162,7 +162,7 @@ export const Notification = () => {
                                     <div className="flex items-center gap-2">
                                         <div className="flex items-center space-x-2">
                                             <Switch checked={reminder.isActive} onCheckedChange={() => handleToggleActive(reminder.id)} />
-                                            <span className="text-sm text-muted-foreground">{reminder.isActive ? "Activo" : "Inactivo"}</span>
+                                            <span className="text-sm text-gray-100">{reminder.isActive ? "Activo" : "Inactivo"}</span>
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(reminder)}>
                                             <Pencil className="h-4 w-4 text-white" />
@@ -176,11 +176,11 @@ export const Notification = () => {
                                     <div className="space-y-2 text-white">
                                         <div>
                                             <p className="text-sm font-medium">Asunto:</p>
-                                            <p className="text-sm text-muted-foreground">{reminder.subject}</p>
+                                            <p className="text-sm text-gray-100">{reminder.subject}</p>
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium">Mensaje:</p>
-                                            <p className="text-sm text-muted-foreground line-clamp-2">{reminder.message}</p>
+                                            <p className="text-sm text-gray-100 line-clamp-2">{reminder.message}</p>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -192,7 +192,7 @@ export const Notification = () => {
                 <TabsContent value="history" className="space-y-4">
                     <div>
                         <h3 className="text-lg font-medium">Historial de Recordatorios</h3>
-                        <p className="text-sm text-muted-foreground">Registro de todos los recordatorios enviados.</p>
+                        <p className="text-sm text-gray-100">Registro de todos los recordatorios enviados.</p>
                     </div>
 
                     <div className="rounded-md border border-zinc-800 bg-zinc-900 text-white">

@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientDTO, ClientIdentificationDTO } from './clients.dto';
+import { ClientDTO } from './clients.dto';
+import * as ExcelJS from 'exceljs';
+import { Response } from 'express';
 import { Client } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -132,5 +134,32 @@ export class ClientsService {
             badResponse.message = err.message;
             return badResponse;
         }
+    }
+
+
+    async exportClientsToExcel(res: Response) {
+        const clients = await this.prismaService.client.findMany();
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Clientes');
+
+        worksheet.columns = [
+            // { header: 'ID', key: 'id' },
+            { header: 'Nombre', key: 'name' },
+            { header: 'Apellido', key: 'lastName' },
+            { header: 'Cédula', key: 'identify' },
+            { header: 'Correo', key: 'email' },
+            { header: 'Teléfono', key: 'phone' },
+            { header: 'Dirección', key: 'address' },
+            { header: 'Fecha Registro', key: 'createdDate' }
+        ];
+
+        clients.forEach((client) => worksheet.addRow(client));
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=clientes.xlsx');
+
+        await workbook.xlsx.write(res);
+        res.end();
     }
 }

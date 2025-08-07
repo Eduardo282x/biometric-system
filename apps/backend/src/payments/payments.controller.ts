@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { PaymentDTO } from './payment.dto';
 import { ClientIdentificationDTO } from 'src/clients/clients.dto';
+import { Response } from 'express';
 
 @Controller('payments')
 export class PaymentsController {
@@ -27,6 +28,11 @@ export class PaymentsController {
     @Post('/find')
     async getPaymentClient(@Body() client: ClientIdentificationDTO) {
         return await this.paymentService.getPaymentClient(client);
+    }
+
+    @Post('/export')
+    async exportPayments(@Res() res: Response) {
+        return await this.paymentService.exportPaymentsToExcel(res);
     }
     @Put('/:id')
     async updatePayment(@Param('id') id: string, @Body() payment: PaymentDTO) {

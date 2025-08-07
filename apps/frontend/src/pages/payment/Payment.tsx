@@ -5,11 +5,20 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { useState, useEffect } from "react";
 import { paymentColumns, paymentHistoryColumns } from "./payment.data";
 import { GroupPayments, IPayment, PaymentBody } from "@/services/payment/payment.interface";
-import { createPayment, deletePayment, getPayments, updatePayment } from "@/services/payment/payment.service";
+import { createPayment, deletePayment, generatePaymentReportPDF, getPayments, updatePayment } from "@/services/payment/payment.service";
 import { DeletePaymentDialog, PaymentForm } from "./PaymentForm";
 import { IClients } from "@/services/client/client.interface";
 import { getClients } from "@/services/client/client.service";
 import { IUser } from "@/services/user/user.interface";
+import { DropdownColumnFilter } from "@/components/table/DropdownColumnFilter";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { Autocomplete } from "@/components/autocomplete/Autocomplete";
 
 export const Payment = () => {
     const [clients, setClients] = useState<IClients[]>([])
@@ -20,10 +29,16 @@ export const Payment = () => {
     const [openDelete, setOpenDelete] = useState<boolean>(false);
     const [userData, setUserData] = useState<IUser | null>(null);
 
-    const handleExportToExcel = () => {
-        // Mock export functionality
-        console.log("Exporting to Excel:")
-        alert("Exportando a Excel...")
+    const handleExportToExcel = async () => {
+        const response = await generatePaymentReportPDF() as Blob;
+        const url = URL.createObjectURL(response)
+        const link = window.document.createElement("a")
+        link.href = url
+        link.download = `Reporte de Pagos.xlsx`
+        window.document.body.appendChild(link)
+        link.click()
+        window.document.body.removeChild(link)
+        URL.revokeObjectURL(url)
     }
 
     useEffect(() => {
@@ -102,12 +117,20 @@ export const Payment = () => {
         await getPaymentsApi();
     }
 
+    const applyFilters = () => {
+
+    }
+
+    const removeDuplicate = (list: string[]) => {
+        return [...new Set(list)];
+    }
+
     return (
         <div className="space-y-4 text-white">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Gestión de Pagos</h1>
-                    <p className="text-muted-foreground">Administre los pagos del gimnasio.</p>
+                    <p className="text-gray-100">Administre los pagos del gimnasio.</p>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 p-1 rounded-lg bg-zinc-700">
@@ -116,7 +139,7 @@ export const Payment = () => {
                 </div>
             </div>
             <div className="flex items-center justify-between">
-                <div className="relative w-72">
+                <div className="relative w-72 flex gap-2 items-center">
                     {view == 'payment' ?
                         <FilterComponent
                             data={payments.allPayments}
@@ -131,6 +154,12 @@ export const Payment = () => {
                             placeholder="Buscar Pago..."
                             onSearch={onFilterUser}
                         />}
+
+                    <DropdownColumnFilter>
+                        <FilterPayments
+                            clients={clients}
+                            methodPayments={removeDuplicate(payments.allPayments.map(item => item.methodPayment))} />
+                    </DropdownColumnFilter>
                 </div>
 
 
@@ -186,3 +215,42 @@ export const Payment = () => {
     )
 }
 
+interface FilterPaymentsProps {
+    methodPayments: string[];
+    clients: IClients[]
+}
+
+export const FilterPayments = ({ methodPayments, clients }: FilterPaymentsProps) => {
+    return (
+        <div className="flex flex-col gap-2">
+            <Select>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="payed">Al dia</SelectItem>
+                    <SelectItem value="noPayed">Moroso</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Método de pago" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {methodPayments && methodPayments.map(item => (
+                        <SelectItem value={item}>{item}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Autocomplete
+                data={clients.map(item => ({ label: `${item.name} ${item.lastName}`, value: item.id.toString() }))}
+                placeholder="Buscar cliente..."
+                onChange={(value) => console.log(value)}
+            />
+        </div>
+    )
+}

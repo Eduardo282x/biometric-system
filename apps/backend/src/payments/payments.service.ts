@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaymentDTO } from './payment.dto';
+import * as ExcelJS from 'exceljs';
+import { Response } from 'express';
 import { ClientIdentificationDTO } from 'src/clients/clients.dto';
 
 @Injectable()
@@ -140,5 +142,47 @@ export class PaymentsService {
             badResponse.message = err.message;
             return badResponse;
         }
+    }
+
+    async exportPaymentsToExcel(res: Response) {
+        const payments = await this.prismaService.payment.findMany({
+            include: {
+                client: true,
+                user: true,
+            },
+        });
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Pagos');
+
+        worksheet.columns = [
+            // { header: 'ID', key: 'id' },
+            { header: 'Cliente', key: 'clientName' },
+            { header: 'Usuario', key: 'userName' },
+            { header: 'Método de pago', key: 'methodPayment' },
+            { header: 'Monto', key: 'amount' },
+            { header: 'Descripción', key: 'description' },
+            { header: 'Fecha de pago', key: 'datePay' },
+            { header: 'Próxima fecha de pago', key: 'nextDatePay' },
+        ];
+
+        payments.forEach((pay) => {
+            worksheet.addRow({
+                id: pay.id,
+                clientName: `${pay.client.name} ${pay.client.lastName}`,
+                userName: `${pay.user.name} ${pay.user.lastName}`,
+                methodPayment: pay.methodPayment,
+                amount: pay.amount,
+                description: pay.description,
+                datePay: pay.datePay,
+                nextDatePay: pay.nextDatePay,
+            });
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=pagos.xlsx');
+
+        await workbook.xlsx.write(res);
+        res.end();
     }
 }

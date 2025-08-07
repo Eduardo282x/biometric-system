@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableComponent } from "@/components/table/TableComponent";
-import { deleteClient, getClients, uploadPhotoClient } from "@/services/client/client.service";
+import { deleteClient, generateClientReportPDF, getClients, uploadPhotoClient } from "@/services/client/client.service";
 import { ClientBody, GroupClients, IClients } from "@/services/client/client.interface";
 import { FilterComponent } from "@/components/table/FilterComponent";
 import { ClientsForm, DeleteClientDialog } from "./ClientsForm";
@@ -14,10 +14,16 @@ export const Clients = () => {
     const [open, setOpen] = useState<boolean>(false);
     const [openDelete, setOpenDelete] = useState<boolean>(false);
 
-    const handleExportToExcel = () => {
-        // Mock export functionality
-        console.log("Exporting to Excel:")
-        alert("Exportando a Excel...")
+    const handleExportToExcel = async () => {
+        const response = await generateClientReportPDF() as Blob;
+        const url = URL.createObjectURL(response)
+        const link = window.document.createElement("a")
+        link.href = url
+        link.download = `Reporte de Clientes.xlsx`;
+        window.document.body.appendChild(link)
+        link.click()
+        window.document.body.removeChild(link)
+        URL.revokeObjectURL(url)
     }
 
     useEffect(() => {
@@ -85,7 +91,7 @@ export const Clients = () => {
         <div className="space-y-4 text-white">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Gestión de Clientes</h1>
-                <p className="text-muted-foreground">Administre los clientes del gimnasio.</p>
+                <p className="text-gray-100">Administre los clientes del gimnasio.</p>
             </div>
             <div className="flex items-center justify-between">
                 <div className="relative w-72">

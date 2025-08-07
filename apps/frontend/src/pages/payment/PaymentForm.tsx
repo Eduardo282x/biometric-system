@@ -7,10 +7,10 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, } from "@/components/ui/alert-dialog"
 import { Label } from "@radix-ui/react-label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IClients } from "@/services/client/client.interface";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { es } from "date-fns/locale/es";
+import { Autocomplete } from "@/components/autocomplete/Autocomplete";
 
 interface PaymentFormProps extends BaseFormProps<IPayment, PaymentBody> {
     clients: IClients[];
@@ -47,16 +47,11 @@ export const PaymentForm = ({ open, setOpen, data, clients, onSubmit }: PaymentF
                 <form id="client-form" onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
                     <div className="space-y-2">
                         <Label htmlFor="client">Cliente</Label>
-                        <Select value={watch('clientId').toString()} onValueChange={(value) => setValue('clientId', Number(value))}>
-                            <SelectTrigger className="w-full bg-zinc-950 border-zinc-800">
-                                <SelectValue placeholder="Theme" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-zinc-950 border-zinc-800 text-white">
-                                {clients && clients.map((item) => (
-                                    <SelectItem key={item.id} value={item.id.toString()}>{item.name} {item.lastName}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Autocomplete
+                            data={clients.map(item => ({ label: `${item.name} ${item.lastName}`, value: item.id.toString() }))}
+                            placeholder="Buscar cliente..."
+                            onChange={(value) => setValue('clientId', Number(value))}
+                        />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="methodPayment">Método de pago</Label>

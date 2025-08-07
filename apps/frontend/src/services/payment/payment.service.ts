@@ -1,4 +1,4 @@
-import { deleteDataApi, getDataApi, postDataApi, putDataApi } from "../api";
+import { deleteDataApi, getDataApi, postDataApi, postDataFileApi, putDataApi } from "../api";
 import { PaymentBody } from "./payment.interface";
 
 const paymentURL = '/payments';
@@ -14,6 +14,13 @@ export const getPayments = async () => {
 export const createPayment = async (data: PaymentBody) => {
     try {
         return await postDataApi(paymentURL, data);
+    } catch (err) {
+        return err;
+    }
+}
+export const generatePaymentReportPDF = async () => {
+    try {
+        return await postDataFileApi(`${paymentURL}/export`, {});
     } catch (err) {
         return err;
     }
