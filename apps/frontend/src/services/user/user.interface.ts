@@ -5,6 +5,11 @@ export interface UserBody {
     role: Role;
 }
 
+export interface NewPassword {
+    currentPassword: string;
+    password: string;
+}
+
 export interface IUser {
     id: number,
     name: string;

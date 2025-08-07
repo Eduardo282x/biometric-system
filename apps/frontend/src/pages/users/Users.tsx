@@ -91,11 +91,9 @@ export const Users = () => {
                     setOpen={setOpen}
                     data={userSelected}
                     onSubmit={getActionForm}
-                    roles={['ADMIN', 'GERENTE', 'RECEPCIONISTA']}
+                    roles={['GERENTE', 'RECEPCIONISTA']}
                 />
             )}
-
-
         </div>
     )
 }

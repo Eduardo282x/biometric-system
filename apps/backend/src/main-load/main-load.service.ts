@@ -17,7 +17,7 @@ export class MainLoadService {
                     name: 'Alvaro',
                     lastName: 'Rios',
                     password: 'admin123',
-                    role: 'ADMIN',
+                    role: 'GERENTE',
                 },
             });
             const gerente = await this.prisma.user.create({

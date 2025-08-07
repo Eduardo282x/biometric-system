@@ -1,4 +1,4 @@
-import { Users, CreditCard, Camera, LogOut, Bell } from "lucide-react"
+import { Users, CreditCard, Camera, LogOut, Bell, User } from "lucide-react"
 import { useLocation, Link, useNavigate } from "react-router"
 
 import { cn } from "@/lib/utils"
@@ -30,6 +30,11 @@ const navItems = [
         name: "Gestión de Usuarios",
         href: "/usuarios",
         icon: Users,
+    },
+    {
+        name: "Perfil",
+        href: "/perfil",
+        icon: User,
     },
 
 ]

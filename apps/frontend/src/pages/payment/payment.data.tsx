@@ -21,6 +21,11 @@ export const paymentColumns: IColumns<IPayment>[] = [
         element: (data: IPayment) => data.methodPayment
     },
     {
+        label: 'Descripción',
+        column: 'description',
+        element: (data: IPayment) => data.description
+    },
+    {
         label: 'Fecha',
         column: 'datePay',
         element: (data: IPayment) => formatDateShort(data.datePay)

@@ -14,12 +14,12 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
+  id       Int       @id @default(autoincrement())
+  username String    @unique
   name     String
   lastName String
   password String
-  role     Role   @default(RECEPCIONISTA)
+  role     Role      @default(RECEPCIONISTA)
   payments Payment[] // pagos que este usuario ha registrado
 }
 
@@ -29,16 +29,17 @@ enum Role {
 }
 
 model Client {
-  id          Int        @id @default(autoincrement())
-  name        String
-  lastName    String
-  identify    String     @unique
-  email       String
-  phone       String
-  address     String
-  photo       String? // opcional
-  createdDate DateTime   @default(now())
-  payments    Payment[]
+  id              Int               @id @default(autoincrement())
+  name            String
+  lastName        String
+  identify        String            @unique
+  email           String
+  phone           String
+  address         String
+  photo           String? // opcional
+  createdDate     DateTime          @default(now())
+  payments        Payment[]
+  ReminderHistory ReminderHistory[]
 }
 
 model Payment {
@@ -55,12 +56,23 @@ model Payment {
 }
 
 model Reminder {
+  id              String            @id @default(uuid())
+  name            String
+  subject         String
+  message         String
+  daysBefore      Int
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ReminderHistory ReminderHistory[]
+}
+
+model ReminderHistory {
   id         String   @id @default(uuid())
-  name       String
-  subject    String
-  message    String
-  daysBefore Int
-  isActive   Boolean  @default(true)
+  clientId   Int
+  reminderId String
+  client     Client   @relation(fields: [clientId], references: [id])
+  reminder   Reminder @relation(fields: [reminderId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

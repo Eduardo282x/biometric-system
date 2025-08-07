@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserDTO } from './users.dto';
+import { UserDTO, UserPasswordDTO } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -35,9 +35,33 @@ export class UsersService {
         }
     }
 
+    async updateUserPassword(id: number, newUser: UserPasswordDTO) {
+        try {
+            const findUserPassword = await this.prismaService.user.findFirst({
+                where: {password: newUser.currentPassword}
+            });
+
+            if(!findUserPassword){
+                badResponse.message = 'La contraseña actual no coincide'
+                return badResponse;
+            }
+
+            await this.prismaService.user.update({
+                data: {
+                    password: newUser.password,
+                },
+                where: { id }
+            });
+            baseResponse.message = 'Contraseña actualizada.'
+            return baseResponse;
+        } catch (err) {
+            badResponse.message = err.message;
+            return badResponse;
+        }
+    }
     async updateUser(id: number, newUser: UserDTO) {
         try {
-            await this.prismaService.user.update({
+            const userUpdated = await this.prismaService.user.update({
                 data: {
                     username: newUser.username,
                     name: newUser.name,
@@ -46,6 +70,7 @@ export class UsersService {
                 },
                 where: { id }
             });
+            baseResponse.data = userUpdated;
             baseResponse.message = 'Usuario actualizado exitosamente.'
             return baseResponse;
         } catch (err) {

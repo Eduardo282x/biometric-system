@@ -12,5 +12,14 @@ export class UserDTO {
     lastName: string;
     @IsString()
     @IsNotEmpty({ message: 'Este campo es requerido.' })
-    role: 'ADMIN' | 'GERENTE' | 'RECEPCIONISTA';
+    role: 'GERENTE' | 'RECEPCIONISTA';
+}
+
+export class UserPasswordDTO {
+    @IsString()
+    @IsNotEmpty({ message: 'Este campo es requerido.' })
+    password: string;
+    @IsString()
+    @IsNotEmpty({ message: 'Este campo es requerido.' })
+    currentPassword: string;
 }
