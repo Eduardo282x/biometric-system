@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { TableComponent } from "@/components/table/TableComponent"
+import { IColumns, TableComponent } from "@/components/table/TableComponent"
 import { usersColumns } from "./user.data"
 import { createUser, getUsers, updateUser } from "@/services/user/user.service"
 import { UserForm } from "./UserForm"
@@ -12,10 +12,20 @@ export const Users = () => {
     const [users, setUsers] = useState<GroupUser>({ allUsers: [], users: [] })
     const [userSelected, setUserSelected] = useState<IUser | null>(null);
     const [open, setOpen] = useState<boolean>(false);
+    const [columns, setColumns] = useState<IColumns<IUser>[]>(usersColumns);
 
     useEffect(() => {
         getUserApi();
+
+        const getUserData: IUser = JSON.parse(localStorage.getItem('userData') as string);
+        if (getUserData && getUserData.role == 'RECEPCIONISTA') {
+            validateUser()
+        }
     }, []);
+
+    const validateUser = () => {
+        setColumns(usersColumns.filter(item => !item.icon))
+    }
 
     const getUserApi = async () => {
         try {
@@ -65,7 +75,7 @@ export const Users = () => {
                 <div className="w-72">
                     <FilterComponent
                         placeholder={"Buscar por nombre o apellido"}
-                        columns={usersColumns}
+                        columns={columns}
                         data={users.allUsers}
                         onSearch={onFilterUser}
                     />
@@ -81,7 +91,7 @@ export const Users = () => {
 
             <TableComponent
                 data={users.users}
-                columns={usersColumns}
+                columns={columns}
                 actionTable={getActionTable}
             />
 

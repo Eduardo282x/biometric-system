@@ -1,94 +1,67 @@
 import { useEffect, useState } from "react"
-import { Plus, Pencil, Trash2, Clock, CheckCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, SendHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DeleteReminderDialog, NotificationForm } from "./NotificationForm"
-import { IReminder, ReminderBody } from "@/services/reminder/reminder.interface"
-
-// Mock reminder configurations
-const mockReminderConfigs: IReminder[] = [
-    {
-        id: 1,
-        name: "Primer Recordatorio",
-        daysBefore: 7,
-        isActive: true,
-        subject: "Recordatorio: Tu mensualidad vence pronto",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        message:
-            "Hola {nombre}, te recordamos que tu mensualidad del gimnasio vence el {fecha_vencimiento}. Por favor, realiza tu pago a tiempo para evitar interrupciones en tu acceso.",
-    },
-    {
-        id: 2,
-        name: "Segundo Recordatorio",
-        daysBefore: 3,
-        isActive: true,
-        subject: "Urgente: Tu mensualidad vence en 3 días",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        message:
-            "Hola {nombre}, tu mensualidad vence el {fecha_vencimiento}. Te pedimos que realices tu pago lo antes posible para mantener tu acceso al gimnasio.",
-    },
-    {
-        id: 3,
-        name: "Recordatorio de Vencimiento",
-        daysBefore: 0,
-        isActive: false,
-        subject: "Tu mensualidad ha vencido",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        message:
-            "Hola {nombre}, tu mensualidad venció el {fecha_vencimiento}. Por favor, realiza tu pago para reactivar tu acceso al gimnasio.",
-    },
-]
-
-// Mock reminder history
-const mockReminderHistory = [
-    {
-        id: 1,
-        clientName: "Carlos Rodríguez",
-        email: "carlos@example.com",
-        reminderType: "Primer Recordatorio",
-        sentDate: "2025-01-28",
-        sentTime: "09:30",
-        status: "Enviado",
-    },
-    {
-        id: 2,
-        clientName: "María González",
-        email: "maria@example.com",
-        reminderType: "Segundo Recordatorio",
-        sentDate: "2025-01-28",
-        sentTime: "09:35",
-        status: "Enviado",
-    },
-    {
-        id: 3,
-        clientName: "Juan Pérez",
-        email: "juan@example.com",
-        reminderType: "Primer Recordatorio",
-        sentDate: "2025-01-27",
-        sentTime: "10:15",
-        status: "Error",
-    },
-]
+import { DeleteReminderDialog, NotificationForm, SendReminders } from "./NotificationForm"
+import { IReminder, IReminderHistory, ReminderBody, SendReminderBody } from "@/services/reminder/reminder.interface"
+import { createReminder, deleteReminder, getReminder, getReminderHistory, sendReminders, updateReminder } from "@/services/reminder/reminder.service"
+import { TableComponent } from "@/components/table/TableComponent"
+import { reminderHistoryColumns } from "./notification.data"
+import { IClients } from "@/services/client/client.interface"
+import { getClients } from "@/services/client/client.service"
 
 export const Notification = () => {
-    const [reminderConfigs, setReminderConfigs] = useState(mockReminderConfigs)
-    const [reminderHistory, setReminderHistory] = useState(mockReminderHistory)
+    const [clients, setClients] = useState<IClients[]>([])
+    const [reminderConfigs, setReminderConfigs] = useState<IReminder[]>([])
+    const [reminderHistory, setReminderHistory] = useState<IReminderHistory[]>([])
     const [openForm, setOpenForm] = useState<boolean>(false)
+    const [openFormSend, setOpenFormSend] = useState<boolean>(false)
     const [openDelete, setOpenDelete] = useState<boolean>(false)
     const [reminderSelected, setReminderSelected] = useState<IReminder | null>(null)
+
+
+    useEffect(() => {
+        getReminderApi();
+        getClientsApi();
+        getReminderHistoryApi();
+    }, [])
+
+    const getClientsApi = async () => {
+        try {
+            const response = await getClients()
+            if (response && response.length > 0)
+                setClients(response)
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    const getReminderApi = async () => {
+        try {
+            const response = await getReminder()
+            if (response && response.length > 0)
+                setReminderConfigs(response)
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    const getReminderHistoryApi = async () => {
+        try {
+            const response = await getReminderHistory()
+            if (response && response.length > 0)
+                setReminderHistory(response)
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
     const handleEdit = (reminder: IReminder) => {
         setReminderSelected(reminder);
         setOpenForm(true);
     }
 
-    const handleToggleActive = (reminderId: number) => {
+    const handleToggleActive = async (reminderId: string) => {
         setReminderConfigs(
             reminderConfigs.map((reminder) =>
                 reminder.id === reminderId ? { ...reminder, isActive: !reminder.isActive } : reminder,
@@ -101,30 +74,47 @@ export const Notification = () => {
         setOpenForm(true)
     }
 
-    const getChangesForm = (data: ReminderBody) => {
-        console.log(data);
+    const getChangesForm = async (data: ReminderBody) => {
+        if (reminderSelected) {
+            await updateReminder(reminderSelected.id, data)
+        } else {
+            await createReminder(data)
+        }
+        await getReminderApi();
         setOpenForm(false);
     }
 
-    const deleteReminder = (data: boolean) => {
-        console.log(data);
+    const deleteReminderApi = async (data: boolean) => {
         if (data && reminderSelected) {
+            await deleteReminder(reminderSelected.id)
             setOpenForm(false);
         }
     }
 
-    useEffect(() => {
-        setReminderHistory(mockReminderHistory)
-    }, []);
+    const openDialogSendReminders = () => {
+        setOpenFormSend(true)
+    }
 
+    const sendRemindersApi = async (sendData: SendReminderBody) => {
+        await sendReminders(sendData)
+        setOpenFormSend(false);
+        await getReminderHistoryApi();
+    }
 
     return (
         <div className="space-y-6 text-white">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight ">Gestión de Recordatorios</h1>
-                <p className="text-gray-100">
-                    Configure recordatorios automáticos por correo electrónico para los pagos de mensualidades.
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight ">Gestión de Recordatorios</h1>
+                    <p className="text-gray-100">
+                        Configure recordatorios automáticos por correo electrónico para los pagos de mensualidades.
+                    </p>
+                </div>
+
+                <Button onClick={openDialogSendReminders} className="bg-blue-600 hover:bg-blue-700">
+                    <SendHorizontal className="mr-2 h-4 w-4" />
+                    Prueba de envió
+                </Button>
             </div>
 
             <Tabs defaultValue="configurations" className="space-y-4">
@@ -196,59 +186,40 @@ export const Notification = () => {
                     </div>
 
                     <div className="rounded-md border border-zinc-800 bg-zinc-900 text-white">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-zinc-800/50">
-                                    <TableHead>Cliente</TableHead>
-                                    <TableHead>Correo</TableHead>
-                                    <TableHead>Tipo de Recordatorio</TableHead>
-                                    <TableHead>Fecha</TableHead>
-                                    <TableHead>Hora</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {reminderHistory.map((record) => (
-                                    <TableRow key={record.id} className="hover:bg-zinc-800/50 text-white">
-                                        <TableCell>{record.clientName}</TableCell>
-                                        <TableCell>{record.email}</TableCell>
-                                        <TableCell>{record.reminderType}</TableCell>
-                                        <TableCell>{record.sentDate}</TableCell>
-                                        <TableCell>{record.sentTime}</TableCell>
-                                        <TableCell>
-                                            <span
-                                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${record.status === "Enviado" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                                                    }`}
-                                            >
-                                                {record.status === "Enviado" ? (
-                                                    <CheckCircle className="mr-1 h-3 w-3" />
-                                                ) : (
-                                                    <Clock className="mr-1 h-3 w-3" />
-                                                )}
-                                                {record.status}
-                                            </span>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-
-                            </TableBody>
-                        </Table>
+                        <TableComponent
+                            data={reminderHistory}
+                            columns={reminderHistoryColumns}
+                            actionTable={() => console.log('')}
+                        />
                     </div>
                 </TabsContent>
             </Tabs>
 
-
-            <NotificationForm
-                open={openForm}
-                setOpen={setOpenForm}
-                data={reminderSelected}
-                onSubmit={getChangesForm}
-            />
-            <DeleteReminderDialog
-                open={openDelete}
-                setOpen={setOpenDelete}
-                onDelete={deleteReminder}
-            />
+            {openFormSend && (
+                <SendReminders
+                    open={openFormSend}
+                    setOpen={setOpenFormSend}
+                    clients={clients}
+                    reminders={reminderConfigs}
+                    data={null}
+                    onSubmit={sendRemindersApi}
+                />
+            )}
+            {openForm && (
+                <NotificationForm
+                    open={openForm}
+                    setOpen={setOpenForm}
+                    data={reminderSelected}
+                    onSubmit={getChangesForm}
+                />
+            )}
+            {openDelete && (
+                <DeleteReminderDialog
+                    open={openDelete}
+                    setOpen={setOpenDelete}
+                    onDelete={deleteReminderApi}
+                />
+            )}
         </div>
     )
 }

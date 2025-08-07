@@ -1,3 +1,4 @@
+import { IClients } from "../client/client.interface";
 
 
 export interface ReminderBody {
@@ -8,8 +9,13 @@ export interface ReminderBody {
     isActive: boolean;
 }
 
+export interface SendReminderBody {
+    reminderId: string;
+    clientIds: number[];
+}
+
 export interface IReminder {
-    id: number;
+    id: string;
     name: string;
     subject: string;
     message: string;
@@ -17,4 +23,13 @@ export interface IReminder {
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
+}
+export interface IReminderHistory {
+    id: string
+    clientId: number
+    reminderId: string
+    client: IClients
+    reminder: IReminder
+    createdAt: Date
+    updatedAt: Date
 }

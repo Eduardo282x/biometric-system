@@ -26,6 +26,7 @@ export interface IClients {
     address: string;
     photo: string;
     createdDate: Date;
+    selected?: boolean;
     planId: number;
     plan: Plan;
 

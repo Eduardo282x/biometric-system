@@ -19,7 +19,9 @@ export class ReminderService {
     }
 
     async getHistoryReminder() {
-        return await this.prismaService.reminderHistory.findMany()
+        return await this.prismaService.reminderHistory.findMany({
+            include: {client: true, reminder: true}
+        })
     }
 
     async createReminder(data: ReminderBody) {
