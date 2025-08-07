@@ -24,3 +24,13 @@ export const formatHourShort = (date: Date | string): string => {
     hours = hours % 12 || 12;
     return `${hours.toString().padStart(2, '0')}:${minutes}${ampm}`;
 }
+
+export const getDaysUntil = (date: Date | string): number =>  {
+    const now = new Date();
+    const target = typeof date === 'string' ? new Date(date) : date;
+    // Limpiar horas para comparar solo fechas
+    now.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+    const diff = target.getTime() - now.getTime();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}

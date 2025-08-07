@@ -11,7 +11,6 @@ interface DropdownColumnFilterProps {
 }
 
 export const DropdownColumnFilter = ({ children }: DropdownColumnFilterProps) => {
-
     return (
         <div>
             <DropdownMenu>
@@ -23,7 +22,7 @@ export const DropdownColumnFilter = ({ children }: DropdownColumnFilterProps) =>
                         <FaFilter />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent align="start" className="relative z-50">
                     {children}
                 </DropdownMenuContent>
             </DropdownMenu>

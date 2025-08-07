@@ -18,7 +18,7 @@ import { verifyClientFace } from "@/services/client/client.service";
 import { ClientIdentification } from "@/services/client/client.interface";
 import { findClient } from "@/services/access/access.service";
 import { IPayment } from "@/services/payment/payment.interface";
-import { formatDateShort } from "@/lib/formatters";
+import { formatDateShort, getDaysUntil } from "@/lib/formatters";
 import { ScreenLoader } from "@/components/loaders/ScreenLoader";
 import { RenderImage } from "../clients/client.data";
 
@@ -114,6 +114,9 @@ export const Access = () => {
                 setStream(null)
                 setIsScanning(false)
             }, 2000);
+            setTimeout(() => {
+                stopCamera()
+            }, 15000);
             console.log('Respuesta del servidor:', response.data);
         } catch (error) {
             console.error('Error en reconocimiento facial:', error);
@@ -211,7 +214,7 @@ export const Access = () => {
                                     <div className="space-y-1">
                                         <p className="text-lg text-gray-200">Próximo pago</p>
                                         <div className="flex items-center gap-2 text-lg font-medium">
-                                            <p>{formatDateShort(clientDetected.nextDatePay)}</p> - <p>29 Dias</p>
+                                            <p>{formatDateShort(clientDetected.nextDatePay)}</p> - <p>{getDaysUntil(clientDetected.nextDatePay)} Dias</p>
                                         </div>
                                     </div>
                                 </div>

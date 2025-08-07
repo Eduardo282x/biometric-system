@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaymentDTO } from './payment.dto';
+import { PaymentDTO, PaymentFilterDTO } from './payment.dto';
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 import { ClientIdentificationDTO } from 'src/clients/clients.dto';
@@ -144,13 +144,33 @@ export class PaymentsService {
         }
     }
 
-    async exportPaymentsToExcel(res: Response) {
-        const payments = await this.prismaService.payment.findMany({
+    async exportPaymentsToExcel(res: Response, filters: PaymentFilterDTO) {
+        const where: any = {};
+
+        if (filters.methodPayments && filters.methodPayments !== 'all') {
+            where.methodPayment = filters.methodPayments;
+        }
+
+        if (filters.clientId && filters.clientId !== 'all') {
+            where.clientId = Number(filters.clientId);
+        }
+
+        let payments = await this.prismaService.payment.findMany({
+            where,
             include: {
                 client: true,
                 user: true,
             },
         });
+
+        if (filters.status && filters.status !== 'all') {
+            const today = new Date();
+            payments = payments.filter(pay =>
+                filters.status === 'payed'
+                    ? pay.nextDatePay > today
+                    : pay.nextDatePay <= today
+            );
+        }
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Pagos');
@@ -158,7 +178,7 @@ export class PaymentsService {
         worksheet.columns = [
             // { header: 'ID', key: 'id' },
             { header: 'Cliente', key: 'clientName' },
-            { header: 'Usuario', key: 'userName' },
+            { header: 'Registrado por', key: 'userName' },
             { header: 'Método de pago', key: 'methodPayment' },
             { header: 'Monto', key: 'amount' },
             { header: 'Descripción', key: 'description' },

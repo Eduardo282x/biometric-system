@@ -16,3 +16,12 @@ export class PaymentDTO {
     @IsDate()
     nextDatePay: Date;
 }
+
+export class PaymentFilterDTO {
+    @IsString()
+    methodPayments: string;
+    @IsString()
+    clientId: string;
+    @IsString()
+    status: string;
+}

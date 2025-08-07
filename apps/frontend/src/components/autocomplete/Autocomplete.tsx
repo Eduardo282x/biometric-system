@@ -8,7 +8,7 @@ interface AutoCompleteProps {
     onChange: (value: string) => void;
     valueDefault?: string | number;
     resetValues?: boolean
-    theme?: 'black' | 'white'
+    theme: 'black' | 'white'
 }
 
 export const Autocomplete: FC<AutoCompleteProps> = ({ data, placeholder, onChange, valueDefault, resetValues, theme }) => {
@@ -17,6 +17,8 @@ export const Autocomplete: FC<AutoCompleteProps> = ({ data, placeholder, onChang
     const [inputValue, setInputValue] = useState<string>("");
     const [dataFiltered, setDataFiltered] = useState<{ label: string, value: string }[]>(data);
     const ref = useRef<HTMLDivElement>(null);
+
+    const setTheme = theme == "black" ? 'bg-zinc-950 hover:bg-zinc-950 hover:text-white' : 'bg-transparent border-input hover:bg-transparent text-gray-600'
 
     useEffect(() => {
         setValue(valueDefault ? valueDefault.toString() : "");
@@ -70,21 +72,21 @@ export const Autocomplete: FC<AutoCompleteProps> = ({ data, placeholder, onChang
     }
 
     return (
-        <div className="relative w-full bg-zinc-950 border-zinc-800" ref={ref}>
+        <div className={`relative w-full ${setTheme}`} ref={ref}>
             <Button
                 type="button"
                 variant="outline"
-                className="w-full bg-zinc-950 hover:bg-zinc-950 hover:text-white justify-between overflow-hidden"
+                className={`w-full ${setTheme}  justify-between overflow-hidden`}
                 onClick={() => setOpen(!open)}
             >
-                {value
+                {value != ''
                     ? data.find((option) => option.value.toString() === value)?.label
                     : placeholder}
                 <ChevronsUpDown className="absolute top-3 right-2 ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
 
             {open && (
-                <div className="border rounded-lg overflow-hidden w-full absolute  animationOpacity z-20 mt-1 bg-zinc-950">
+                <div className={`border rounded-lg overflow-hidden fixed animationOpacity bg-white !z-[9999] mt-1 ${theme == 'black' ? `${setTheme} w-full` : 'bg-white w-56'}`}>
                     <input
                         autoFocus
                         placeholder={placeholder}
@@ -98,7 +100,7 @@ export const Autocomplete: FC<AutoCompleteProps> = ({ data, placeholder, onChang
                             <p
                                 key={index}
                                 onClick={() => handleSelect(option.value.toString())}
-                                className="text-sm flex items-center justify-between w-full py-1 px-2 hover:bg-zinc-700 rounded-md transition-all cursor-pointer">
+                                className={`text-sm flex items-center justify-between w-full py-1 px-2  rounded-md transition-all ${theme == 'black' ? 'hover:bg-zinc-700' : 'hover:bg-gray-200'} cursor-pointer`}>
                                 {option.label}
                                 {option.value.toString() === value && (
                                     <Check className="ml-auto h-4 w-4" />

@@ -12,7 +12,9 @@ export interface PaymentBody {
 
 export interface GroupPayments {
     allPayments: IPayment[];
+    allPaymentsHistoryFilters: IPayment[];
     payments: IPayment[];
+    paymentsFilters: IPayment[];
     history: IPayment[];
 }
 

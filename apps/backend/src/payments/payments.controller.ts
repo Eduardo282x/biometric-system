@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { PaymentDTO } from './payment.dto';
+import { PaymentDTO, PaymentFilterDTO } from './payment.dto';
 import { ClientIdentificationDTO } from 'src/clients/clients.dto';
 import { Response } from 'express';
 
@@ -31,8 +31,8 @@ export class PaymentsController {
     }
 
     @Post('/export')
-    async exportPayments(@Res() res: Response) {
-        return await this.paymentService.exportPaymentsToExcel(res);
+    async exportPayments(@Res() res: Response, @Body() filters: PaymentFilterDTO) {
+        return await this.paymentService.exportPaymentsToExcel(res, filters);
     }
     @Put('/:id')
     async updatePayment(@Param('id') id: string, @Body() payment: PaymentDTO) {

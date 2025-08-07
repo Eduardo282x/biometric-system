@@ -15,7 +15,6 @@ export class ClientsService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly faceRecognitionService: FaceRecognitionService
-
     ) {
 
     }
@@ -74,7 +73,7 @@ export class ClientsService {
                 }
             });
 
-            if (photo != '') {
+            if (photo && photo != '') {
                 const photoUrl = `${this.clientPhotosPath}/${photo}`
                 const descriptor = await this.faceRecognitionService.extractFaceDescriptor(photoUrl);
                 const descriptorPath = path.join(this.clientPhotosPath, `${clientSave.id}_descriptor.json`);

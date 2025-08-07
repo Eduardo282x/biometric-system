@@ -1,3 +1,4 @@
+import { IFilters } from "@/pages/payment/Payment";
 import { deleteDataApi, getDataApi, postDataApi, postDataFileApi, putDataApi } from "../api";
 import { PaymentBody } from "./payment.interface";
 
@@ -18,9 +19,9 @@ export const createPayment = async (data: PaymentBody) => {
         return err;
     }
 }
-export const generatePaymentReportPDF = async () => {
+export const generatePaymentReportPDF = async (data: IFilters) => {
     try {
-        return await postDataFileApi(`${paymentURL}/export`, {});
+        return await postDataFileApi(`${paymentURL}/export`, data);
     } catch (err) {
         return err;
     }

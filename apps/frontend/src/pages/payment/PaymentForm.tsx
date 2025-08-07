@@ -51,6 +51,7 @@ export const PaymentForm = ({ open, setOpen, data, clients, onSubmit }: PaymentF
                             data={clients.map(item => ({ label: `${item.name} ${item.lastName}`, value: item.id.toString() }))}
                             placeholder="Buscar cliente..."
                             onChange={(value) => setValue('clientId', Number(value))}
+                            theme="black"
                         />
                     </div>
                     <div className="space-y-2">
