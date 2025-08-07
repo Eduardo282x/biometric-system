@@ -10,6 +10,7 @@ import { Notification } from './pages/notification/Notification'
 import { useAxiosInterceptor } from './services/Interceptor'
 import { Toaster } from 'react-hot-toast'
 import "react-datepicker/dist/react-datepicker.css";
+import AccessTest from './pages/access/AccessTest'
 
 function App() {
   useAxiosInterceptor();
@@ -24,6 +25,7 @@ function App() {
             <Route path="/usuarios" element={<Users />} />
             <Route path="/pagos" element={<Payment />} />
             <Route path="/acceso" element={<Access />} />
+            <Route path="/acceso-test" element={<AccessTest />} />
             <Route path="/clientes" element={<Clients />} />
             <Route path="/recordatorios" element={<Notification />} />
           </Route>

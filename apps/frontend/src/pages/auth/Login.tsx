@@ -41,7 +41,7 @@ export const Login = () => {
             <Card className="w-[350px] bg-zinc-900 border-zinc-800">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl text-center text-white font-bold">GYM ACCESS</CardTitle>
-                    <CardDescription className="text-gray-300 text-center">Ingresa tus credenciales para acceder al sistema</CardDescription>
+                    <CardDescription className="text-gray-100 text-center">Ingresa tus credenciales para acceder al sistema</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <CardContent className="space-y-4">

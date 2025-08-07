@@ -12,6 +12,7 @@ async function bootstrap() {
     whitelist: true
   }));
   app.use('/public/faces', express.static(join(__dirname, '..', 'faces')));
+  app.use('/public/models', express.static(join(__dirname, '..', 'models')));
   await app.listen(3000);
 }
 bootstrap();

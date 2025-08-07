@@ -19,6 +19,8 @@ import { ClientIdentification } from "@/services/client/client.interface";
 import { findClient } from "@/services/access/access.service";
 import { IPayment } from "@/services/payment/payment.interface";
 import { formatDateShort } from "@/lib/formatters";
+import { ScreenLoader } from "@/components/loaders/ScreenLoader";
+import { RenderImage } from "../clients/client.data";
 
 const videoConstraints = {
     width: 1280,
@@ -32,6 +34,7 @@ export const Access = () => {
     const webcamRef = useRef<Webcam>(null);
     const [stream, setStream] = useState<MediaStream | null>(null)
     const [isScanning, setIsScanning] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [isDetected, setIsDetected] = useState<boolean>(false)
     const [clientDetected, setClientDetected] = useState<IPayment | null>(null);
@@ -49,25 +52,17 @@ export const Access = () => {
         } else {
             setIsDetected(false);
         }
-
     }
 
     const startCamera = async () => {
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
-            // console.log(mediaStream);
 
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream
             }
             setStream(mediaStream)
             setIsScanning(true)
-
-            // Simulate face detection after 3 seconds
-            setTimeout(() => {
-                setIsDetected(true)
-                // setUserData(mockUser)
-            }, 3000)
         } catch (err) {
             console.error("Error accessing camera:", err)
         }
@@ -92,6 +87,7 @@ export const Access = () => {
     }, [stream])
 
     const captureAndVerify = async () => {
+        setIsLoading(true);
         const imageSrc = webcamRef.current?.getScreenshot();
 
         if (!imageSrc) return;
@@ -111,32 +107,25 @@ export const Access = () => {
         formData.append('image', file);
 
         try {
-            const response = await verifyClientFace(formData)
-
-            // const { success, nombre, puedeAcceder, proximaFechaPago } = response.data;
-            // Aquí puedes mostrar un mensaje o actualizar el estado de acceso
+            const response = await verifyClientFace(formData);
+            setIsDetected(true);
+            setClientDetected(response.data as IPayment);
+            setTimeout(() => {
+                setStream(null)
+                setIsScanning(false)
+            }, 2000);
             console.log('Respuesta del servidor:', response.data);
         } catch (error) {
             console.error('Error en reconocimiento facial:', error);
         }
+        setIsLoading(false);
     };
-
-    // const webcamRef = useRef(null);
-    // const capture = useCallback(
-    //     () => {
-    //         if(webcamRef && webcamRef.current) {
-    //             const imageSrc = webcamRef.current?.getScreenshot();
-    //             console.log(imageSrc);
-    //         }
-    //     },
-    //     [webcamRef]
-    // );
 
     return (
         <div className="text-white space-y-4">
+            {isLoading && <ScreenLoader />}
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Control de Acceso</h1>
-
             </div>
             <div className="grid gap-6 md:grid-cols-2 text-white">
 
@@ -148,22 +137,21 @@ export const Access = () => {
                     <CardContent className="p-0 aspect-video bg-zinc-950 flex items-center justify-center">
                         {stream ? (
                             // <video ref={videoRef} autoPlay muted className="w-full h-full object-cover" />
-                            <>
+                            <div className="w-full relative max-w-lg mx-auto">
                                 <Webcam
                                     audio={false}
                                     ref={webcamRef}
                                     screenshotFormat="image/jpeg"
-                                    width={320}
-                                    height={240}
+                                    style={{ width: "100%" }}
                                     videoConstraints={videoConstraints}
                                 />
-                                <Button onClick={captureAndVerify} className="mt-4 bg-blue-600 hover:bg-blue-700">
+                                <Button onClick={captureAndVerify} className="right-2 bottom-2 absolute mt-4 bg-blue-600 hover:bg-blue-700">
                                     Verificar acceso
                                 </Button>
                                 {/* <button onClick={capture}>Capture photo</button> */}
-                            </>
+                            </div>
                         ) : (
-                            <div className="text-zinc-500">Cámara desactivada</div>
+                            <div className="text-gray-200">Cámara desactivada</div>
                         )}
                     </CardContent>
                     <CardFooter className="flex justify-between pt-6">
@@ -186,7 +174,7 @@ export const Access = () => {
                 <Card className="bg-zinc-900 border-zinc-800">
                     <CardHeader>
                         <CardTitle className="text-white text-4xl">Información del Cliente</CardTitle>
-                        <CardDescription className="text-xl text-gray-300">
+                        <CardDescription className="text-xl text-white">
                             {isDetected
                                 ? "Cliente identificado"
                                 : isScanning
@@ -194,40 +182,46 @@ export const Access = () => {
                                     : "Inicie la cámara para verificar"}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6 text-white">
+                    <CardContent className="space-y-6 text-white h-full">
                         {clientDetected && isDetected ? (
-                            <>
-                                <div className="space-y-1">
-                                    <p className="text-lg text-zinc-500">Nombre completo</p>
-                                    <p className="text-2xl font-medium">
-                                        {clientDetected.client.name} {clientDetected.client.lastName}
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-lg text-zinc-500">Estado de acceso</p>
-                                    <div className="flex items-center gap-2">
-                                        {clientDetected.status ? (
-                                            <>
-                                                <CheckCircle className="h-5 w-5 text-green-500" />
-                                                <p className="text-2xl font-medium text-green-500">Acceso permitido</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                            <XCircle className="h-5 w-5 text-red-500" />
-                                                <p className="text-2xl font-medium text-red-500">Acceso denegado</p>
-                                            </>
-                                        )}
+                            <div className="flex items-start justify-between h-full">
+                                <div className="flex flex-col justify-around h-full" >
+                                    <div className="space-y-1">
+                                        <p className="text-lg text-gray-200">Nombre completo</p>
+                                        <p className="text-2xl font-medium">
+                                            {clientDetected.client.name} {clientDetected.client.lastName}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-lg text-gray-200">Estado de acceso</p>
+                                        <div className="flex items-center gap-2">
+                                            {clientDetected.status ? (
+                                                <>
+                                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                                    <p className="text-2xl font-medium text-green-500">Acceso permitido</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <XCircle className="h-5 w-5 text-red-500" />
+                                                    <p className="text-2xl font-medium text-red-500">Acceso denegado</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-lg text-gray-200">Próximo pago</p>
+                                        <div className="flex items-center gap-2 text-lg font-medium">
+                                            <p>{formatDateShort(clientDetected.nextDatePay)}</p> - <p>29 Dias</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-lg text-zinc-500">Próximo pago</p>
-                                    <div className="flex items-center gap-2 text-lg font-medium">
-                                        <p>{formatDateShort(clientDetected.nextDatePay)}</p> - <p>29 Dias</p>
-                                    </div>
+
+                                <div className="py-6">
+                                    <RenderImage imageUrl={clientDetected.client.photo} maxSize={true}/>
                                 </div>
-                            </>
+                            </div>
                         ) : (
-                            <div className="flex h-40 items-center justify-center text-zinc-500">
+                            <div className="flex h-40 items-center justify-center text-gray-200">
                                 {isScanning ? "Buscando..." : "No hay cliente detectado"}
                             </div>
                         )}

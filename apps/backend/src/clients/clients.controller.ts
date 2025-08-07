@@ -5,6 +5,8 @@ import { diskStorage, memoryStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FaceService } from './face.service';
 import * as path from 'path';
+import { FaceRecognitionService } from 'src/face-recognition/face-recognition.service';
+import { badResponse, baseResponse } from 'src/base/base.interface';
 
 @Controller('clients')
 export class ClientsController {
@@ -12,6 +14,7 @@ export class ClientsController {
     constructor(
         private readonly clientService: ClientsService,
         private readonly faceService: FaceService,
+        private readonly faceServiceRecognized: FaceRecognitionService,
     ) {
 
     }
@@ -41,32 +44,31 @@ export class ClientsController {
 
     @Post('/verify-face')
     @UseInterceptors(FileInterceptor('image', {
-        storage: memoryStorage(),
-        // storage: diskStorage({
-        //     destination: path.resolve(__dirname, '..', '..', 'temp'),
-        //     filename: (req, file, cb) => {
-        //         cb(null, `verificacion.jpg`);
-        //     }
-        // })
+        // storage: memoryStorage(),
+        storage: diskStorage({
+            destination: path.resolve(__dirname, '..', '..', 'temp'),
+            filename: (req, file, cb) => {
+                cb(null, `verificacion.jpg`);
+            }
+        })
     }))
     async verifyFace(@UploadedFile() file) {
         if (!file) {
             throw new BadRequestException('No se recibió la imagen');
         }
+        const imagePath = path.resolve(__dirname, '..', '..', `temp/verificacion.jpg`)
+        try {
+            const threshold = 0.6;
+            const verificationResult = await this.faceServiceRecognized.verifyClient(
+                imagePath,
+                threshold
+            );
 
-        // Pasa el buffer al servicio de reconocimiento facial
-        const result = await this.faceService.runRecognition(file.buffer);
-        console.log(result);
-
-        // Buscar en la base de datos por el nombre reconocido
-        const user = await this.clientService.findClientByName(result.name);
-
-        return {
-            success: result.match,
-            nombre: result.name,
-            puedeAcceder: result.match,
-            // proximaFechaPago: user?.nextPaymentDate || null,
-        };
+            return verificationResult;
+        } catch (err) {
+            badResponse.message = err;
+            return badResponse;
+        }
     }
 
     @Put('/:id')

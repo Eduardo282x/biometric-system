@@ -3,11 +3,18 @@ import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDTO, ClientIdentificationDTO } from './clients.dto';
 import { Client } from '@prisma/client';
-
+import * as fs from 'fs';
+import * as path from 'path';
+import { FaceRecognitionService } from 'src/face-recognition/face-recognition.service';
 @Injectable()
 export class ClientsService {
+    private readonly clientPhotosPath = path.join(process.cwd(), 'faces');
 
-    constructor(private readonly prismaService: PrismaService) {
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly faceRecognitionService: FaceRecognitionService
+
+    ) {
 
     }
 
@@ -26,8 +33,6 @@ export class ClientsService {
     }
 
     async registerClients(client: ClientDTO, photo: string | null) {
-        console.log(photo);
-
         try {
             const findDuplicate = await this.prismaService.client.findFirst({
                 where: {
@@ -54,7 +59,8 @@ export class ClientsService {
                 return badResponse;
             }
 
-            await this.prismaService.client.create({
+
+            const clientSave = await this.prismaService.client.create({
                 data: {
                     name: client.name,
                     lastName: client.lastName,
@@ -64,7 +70,26 @@ export class ClientsService {
                     identify: client.identify,
                     address: client.address
                 }
-            })
+            });
+
+            if (photo != '') {
+                const photoUrl = `${this.clientPhotosPath}/${photo}`
+                const descriptor = await this.faceRecognitionService.extractFaceDescriptor(photoUrl);
+                const descriptorPath = path.join(this.clientPhotosPath, `${clientSave.id}_descriptor.json`);
+
+                // Crear directorio si no existe
+                if (!fs.existsSync(this.clientPhotosPath)) {
+                    fs.mkdirSync(this.clientPhotosPath, { recursive: true });
+                }
+                const descriptorData = {
+                    clientId: clientSave.id,
+                    descriptor: Array.from(descriptor), // Convertir Float32Array a array normal
+                    registeredAt: new Date().toISOString(),
+                    photo: photoUrl
+                };
+                fs.writeFileSync(descriptorPath, JSON.stringify(descriptorData, null, 2));
+            }
+
 
             baseResponse.message = 'Cliente guardado exitosamente.'
             return baseResponse;
