@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IColumns, TableComponent } from "@/components/table/TableComponent";
-import { deleteClient, generateClientReportPDF, getClients, uploadPhotoClient } from "@/services/client/client.service";
+import { deleteClient, generateClientReportPDF, getClients, registerClient, updateClient } from "@/services/client/client.service";
 import { ClientBody, GroupClients, IClients } from "@/services/client/client.interface";
 import { FilterComponent } from "@/components/table/FilterComponent";
 import { ClientsForm, DeleteClientDialog } from "./ClientsForm";
@@ -92,7 +92,11 @@ export const Clients = () => {
             formData.append('image', picture);
         }
 
-        await uploadPhotoClient(formData); // única función para manejar ambos casos
+        if (clientSelected) {
+            await updateClient(clientSelected.id, formData);
+        } else {
+            await registerClient(formData);
+        }
         setOpen(false);
         await getClientsApi();
     }

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { ClientDTO } from './clients.dto';
 import { diskStorage, memoryStorage } from 'multer';
@@ -48,6 +48,20 @@ export class ClientsController {
         return await this.clientService.registerClients(client, file ? file.filename : null)
     }
 
+    @Put('/update/:id')
+    @UseInterceptors(FileInterceptor('image', {
+        storage: diskStorage({
+            destination: path.resolve(__dirname, '..', '..', 'faces'),
+            filename: (req, file, cb) => {
+                cb(null, `${file.originalname}`);
+            }
+        })
+    }))
+    async update(@Param('id', ParseIntPipe) id: number, @UploadedFile() file, @Body() body: { data: string }) {
+        const client: ClientDTO = JSON.parse(body.data);
+        return await this.clientService.updateClients(id, client, file ? file.filename : null)
+    }
+
     @Post('/verify-face')
     @UseInterceptors(FileInterceptor('image', {
         // storage: memoryStorage(),
@@ -77,10 +91,6 @@ export class ClientsController {
         }
     }
 
-    @Put('/:id')
-    async updateClients(@Param('id') id: string, @Body() client: ClientDTO) {
-        return await this.clientService.updateClients(Number(id), client);
-    }
     @Delete('/:id')
     async deleteClients(@Param('id') id: string) {
         return await this.clientService.deleteClients(Number(id));

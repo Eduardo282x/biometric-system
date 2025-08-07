@@ -100,20 +100,40 @@ export class ClientsService {
         }
     }
 
-    async updateClients(id: number, client: ClientDTO) {
+    async updateClients(id: number, client: ClientDTO, photo: string | null) {
         try {
             await this.prismaService.client.update({
                 data: {
                     name: client.name,
                     lastName: client.lastName,
                     phone: client.phone,
+                    photo: photo || '',
                     email: client.email,
                     identify: client.identify,
+                    address: client.address
                 },
                 where: { id }
-            })
+            });
 
-            baseResponse.message = 'Cliente actualizado exitosamente.'
+            if (photo && photo != '') {
+                const photoUrl = `${this.clientPhotosPath}/${photo}`
+                const descriptor = await this.faceRecognitionService.extractFaceDescriptor(photoUrl);
+                const descriptorPath = path.join(this.clientPhotosPath, `${id}_descriptor.json`);
+
+                // Crear directorio si no existe
+                if (!fs.existsSync(this.clientPhotosPath)) {
+                    fs.mkdirSync(this.clientPhotosPath, { recursive: true });
+                }
+                const descriptorData = {
+                    clientId: id,
+                    descriptor: Array.from(descriptor), // Convertir Float32Array a array normal
+                    registeredAt: new Date().toISOString(),
+                    photo: photoUrl
+                };
+                fs.writeFileSync(descriptorPath, JSON.stringify(descriptorData, null, 2));
+            }
+
+            baseResponse.message = 'Cliente guardado exitosamente.'
             return baseResponse;
         } catch (err) {
             badResponse.message = err.message;

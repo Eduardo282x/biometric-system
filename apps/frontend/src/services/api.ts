@@ -59,6 +59,18 @@ export const postFilesDataApi = async (endpoint: string, formData: FormData) => 
     })
 }
 
+export const putFilesDataApi = async (endpoint: string, formData: FormData) => {
+    return await api.put(endpoint, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    }).then((response) => {
+        return response.data;
+    }).catch((err) => {
+        return err.response.data;
+    })
+}
+
 export const postDataFileApi = async (endpoint: string, data: any) => {
     return await api.post(endpoint, data, { responseType: 'blob' }).then((response) => {
         return response.data;
