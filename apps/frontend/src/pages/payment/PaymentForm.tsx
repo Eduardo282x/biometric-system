@@ -31,6 +31,12 @@ export const PaymentForm = ({ open, setOpen, data, clients, onSubmit }: PaymentF
         }
     });
 
+    const values = watch();
+
+    // Validamos si todos los campos tienen contenido
+    const isFormComplete = Object.values(values).every(value => value && value.toString().trim() !== '');
+
+
     useEffect(() => {
         if (data) {
             reset(data)
@@ -82,7 +88,7 @@ export const PaymentForm = ({ open, setOpen, data, clients, onSubmit }: PaymentF
                     <Button variant="outline" type="button" className="text-black" onClick={() => setOpen(false)}>
                         Cancelar
                     </Button>
-                    <Button form="client-form" type="submit" className="bg-blue-600 hover:bg-blue-700">
+                    <Button form="client-form" disabled={!isFormComplete} type="submit" className="bg-blue-600 hover:bg-blue-700">
                         Guardar
                     </Button>
                 </DialogFooter>
